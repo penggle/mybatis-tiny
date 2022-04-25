@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommonMybatisMapper">
+
+    <!-- 公共的SELECT、UPDATE、DELETE等操作的Where动态条件子句 -->
+    <sql id="CommonWhereCriteriaClause">
+        <where>
+            <trim prefixOverrides="AND |OR ">
+                <foreach collection="criteria.criteria1" item="criterion1" separator="">
+                    <!-- 当前criterion1不是AND|OR嵌套逻辑组 -->
+                    <if test="!criterion1.nested">
+                        <choose>
+                            <!-- 处理参数个数为0的场景：IS NULL、IS NOT NULL -->
+                            <when test="criterion1.type == 0">
+                                ${criterion1.logicOp} ${criterion1.condition}
+                            </when>
+                            <!-- 处理参数个数为1的场景：= ?、> ?、 like ? -->
+                            <when test="criterion1.type == 1">
+                                ${criterion1.logicOp} ${criterion1.condition} #{criterion1.opValue}
+                            </when>
+                            <!-- 处理参数个数为2的场景：between ? AND ? -->
+                            <when test="criterion1.type == 2">
+                                ${criterion1.logicOp} ${criterion1.condition} #{criterion1.opValue[0]} AND #{criterion1.opValue[1]}
+                            </when>
+                            <!-- 处理参数个数大于2的场景：in (?, ...) -->
+                            <when test="criterion1.type > 2">
+                                ${criterion1.logicOp} ${criterion1.condition}
+                                <foreach open="(" collection="criterion1.opValue" item="inItem" close=")" separator=",">
+                                    #{inItem}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                    <!-- 当前criterion1是AND|OR嵌套逻辑组 -->
+                    <if test="criterion1.nested">
+                        ${criterion1.logicOp}
+                        <trim prefix="(" prefixOverrides="AND |OR " suffix=")">
+                            <foreach collection="criterion1.criteria2" item="criterion2" separator="">
+                                <if test="!criterion2.nested">
+                                    <choose>
+                                        <!-- 处理参数个数为0的场景：IS NULL、IS NOT NULL -->
+                                        <when test="criterion2.type == 0">
+                                            ${criterion2.logicOp} ${criterion2.condition}
+                                        </when>
+                                        <!-- 处理参数个数为1的场景：= ?、> ?、 like ? -->
+                                        <when test="criterion2.type == 1">
+                                            ${criterion2.logicOp} ${criterion2.condition} #{criterion2.opValue}
+                                        </when>
+                                        <!-- 处理参数个数为2的场景：between ? AND ? -->
+                                        <when test="criterion2.type == 2">
+                                            ${criterion2.logicOp} ${criterion2.condition} #{criterion2.opValue[0]} AND #{criterion2.opValue[1]}
+                                        </when>
+                                        <!-- 处理参数个数大于2的场景：in (?, ...) -->
+                                        <when test="criterion2.type > 2">
+                                            ${criterion2.logicOp} ${criterion2.condition}
+                                            <foreach open="(" collection="criterion2.opValue" item="inItem" close=")" separator=",">
+                                                #{inItem}
+                                            </foreach>
+                                        </when>
+                                    </choose>
+                                </if>
+                            </foreach>
+                        </trim>
+                    </if>
+                </foreach>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 公共的SELECT查询排序条件子句 -->
+    <sql id="CommonOrderByCriteriaClause">
+        <if test="criteria.orderBys.size() > 0">
+            ORDER BY <foreach collection="criteria.orderBys" item="orderBy" separator=",">${orderBy.property} ${orderBy.direction}</foreach>
+        </if>
+    </sql>
+
+</mapper>

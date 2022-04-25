@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.penggle</groupId>
+        <artifactId>mybatis-tiny-examples</artifactId>
+        <version>3.5-SNAPSHOT</version>
+    </parent>
+    <artifactId>mybatis-tiny-examples-common</artifactId>
+    <name>mybatis-tiny-examples-common</name>
+    <description>mybatis-tiny示例公共部分</description>
+
+    <dependencies>
+        <!-- guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <!-- codeforce-common-domain -->
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>codeforce-common-domain</artifactId>
+        </dependency>
+
+        <!-- mybatis-tiny -->
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>mybatis-tiny-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>mybatis-tiny-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- spring-context -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JMH -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

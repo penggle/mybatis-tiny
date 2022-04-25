@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.penggle</groupId>
+        <artifactId>mybatis-tiny-parent</artifactId>
+        <version>3.5-SNAPSHOT</version>
+    </parent>
+    <artifactId>mybatis-tiny-core</artifactId>
+    <name>mybatis-tiny-core</name>
+    <description>mybatis-tiny的核心实现部分</description>
+
+    <dependencies>
+        <!-- mybatis-tiny-base -->
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>mybatis-tiny-base</artifactId>
+        </dependency>
+
+        <!-- codeforce-common-domain -->
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>codeforce-common-domain</artifactId>
+        </dependency>
+
+        <!-- mybatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+        </dependency>
+
+        <!-- slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+
+        <!-- spring-context -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- spring-tx -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

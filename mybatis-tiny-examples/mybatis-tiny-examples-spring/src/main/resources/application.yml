@@ -1,0 +1,29 @@
+spring:
+    #Hikari 连接池配置
+    datasource:
+        #连接池名字
+        pool-name: defaultHikariCP
+        #最小空闲连接数量
+        minimum-idle: 5
+        #空闲连接存活最大时间，默认600000(10分钟)
+        idle-timeout: 180000
+        #连接池最大连接数，默认是10
+        maximum-pool-size: 17
+        #池中连接的默认自动提交行为，默认值true
+        auto-commit: true
+        #池中连接的最长生命周期，0表示无限生命周期，默认1800000(30分钟)
+        max-lifetime: 1800000
+        #等待来自池的连接的最大毫秒数，默认30000(30秒)
+        connection-timeout: 30000
+        #连接测试语句
+        connection-test-query: SELECT 1
+        username: root
+        password: 123456
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/examples?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=GMT%2B8&useSSL=false&rewriteBatchedStatements=true&useCursorFetch=true
+
+    #Mybatis配置
+    mybatis:
+        config-location: classpath:config/mybatis/mybatis-config.xml
+        mapper-locations: classpath*:com/penglecode/codeforce/mybatistiny/examples/**/*Mapper.xml
+        type-aliases-package: com.penglecode.codeforce.mybatistiny.examples
+        type-aliases-super-type: com.penglecode.codeforce.common.domain.DomainObject

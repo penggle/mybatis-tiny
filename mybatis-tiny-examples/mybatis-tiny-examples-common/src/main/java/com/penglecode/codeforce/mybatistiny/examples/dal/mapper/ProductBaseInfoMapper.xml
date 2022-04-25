@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penglecode.codeforce.mybatistiny.examples.dal.mapper.ProductBaseInfoMapper">
+    <!-- Customized Code Start -->
+
+    <select id="selectProductsByCondition" parameterType="ProductBaseInfo" resultType="ProductBaseInfo" statementType="PREPARED">
+        SELECT t.product_id productId,
+               t.product_name productName,
+               t.product_type productType,
+               t.audit_status auditStatus,
+               t.online_status onlineStatus
+        FROM t_product_base_info t
+        WHERE ( t.product_name like '%华为%' OR t.product_name like '%HUAWEI%' )
+        <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@isNotEmpty(productType)">
+          AND t.product_type = #{productType, jdbcType=INTEGER}
+        </if>
+        <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@isNotEmpty(onlineStatus)">
+          AND t.online_status = #{onlineStatus, jdbcType=INTEGER}
+        </if>
+        <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@isNotEmpty(auditStatuses)">
+          AND t.audit_status IN
+        <foreach collection="auditStatuses" index="index" item="item" open="(" separator="," close=")">
+            #{item, jdbcType=INTEGER}
+        </foreach>
+        </if>
+        ORDER BY t.create_time DESC
+    </select>
+
+    <!-- Customized Code End -->
+</mapper>

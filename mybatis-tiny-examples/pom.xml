@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.penggle</groupId>
+        <artifactId>mybatis-tiny-parent</artifactId>
+        <version>3.5-SNAPSHOT</version>
+    </parent>
+    <artifactId>mybatis-tiny-examples</artifactId>
+    <packaging>pom</packaging>
+    <name>mybatis-tiny-examples</name>
+    <description>mybatis-tiny框架示例</description>
+
+    <properties>
+        <springboot.version>2.4.5</springboot.version>
+        <codeforce.version>2.4-SNAPSHOT</codeforce.version>
+
+        <mysql.version>8.0.25</mysql.version>
+        <guava.version>30.0-jre</guava.version>
+        <jmh.version>1.35</jmh.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- mybatis-tiny-examples -->
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>mybatis-tiny-examples-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>mybatis-tiny-examples-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- 覆盖springboot默认的mysql驱动版本 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <!-- logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.30</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>2.13.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>1.7.30</version>
+            </dependency>
+
+            <!-- spring-boot-dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <modules>
+        <module>mybatis-tiny-examples-common</module>
+        <module>mybatis-tiny-examples-spring</module>
+        <module>mybatis-tiny-examples-primitive</module>
+        <module>mybatis-tiny-examples-springboot</module>
+    </modules>
+</project>

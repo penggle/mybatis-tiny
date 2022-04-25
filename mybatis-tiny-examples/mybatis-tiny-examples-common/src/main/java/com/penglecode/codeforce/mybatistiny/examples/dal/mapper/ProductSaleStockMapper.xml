@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penglecode.codeforce.mybatistiny.examples.dal.mapper.ProductSaleStockMapper">
+    <!-- Customized Code Start -->
+
+    <select id="selectAvgSellPrices" parameterType="java.util.Map" resultType="ProductSaleStock" statementType="PREPARED">
+        SELECT t.product_id     productId,
+               AVG(t.sell_price)    sellPrice
+          FROM t_product_sale_stock t
+         WHERE t.product_id in
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+         GROUP BY t.product_id
+    </select>
+
+    <!-- Customized Code End -->
+</mapper>

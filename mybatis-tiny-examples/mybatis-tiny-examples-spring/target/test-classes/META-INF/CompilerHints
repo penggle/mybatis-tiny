@@ -1,0 +1,9 @@
+dontinline,*.*_all_jmhStub
+dontinline,*.*_avgt_jmhStub
+dontinline,*.*_sample_jmhStub
+dontinline,*.*_ss_jmhStub
+dontinline,*.*_thrpt_jmhStub
+inline,com/penglecode/codeforce/mybatistiny/examples/test/PerformanceTestBySpring.close
+inline,com/penglecode/codeforce/mybatistiny/examples/test/PerformanceTestBySpring.init
+inline,com/penglecode/codeforce/mybatistiny/examples/test/PerformanceTestBySpring.selectProductsByConditionTest
+inline,com/penglecode/codeforce/mybatistiny/examples/test/PerformanceTestBySpring.selectProductsByCriteriaTest
