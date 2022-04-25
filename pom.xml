@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.penggle</groupId>
     <artifactId>mybatis-tiny-parent</artifactId>
-    <version>3.5-SNAPSHOT</version>
+    <version>3.5</version>
     <packaging>pom</packaging>
     <name>mybatis-tiny-parent</name>
     <description>一个基于Mybatis仅支持单表操作的DSL框架，类似于Mybatis-Plus</description>
@@ -49,7 +49,7 @@
     </distributionManagement>
     
     <properties>
-        <codeforce.version>2.4-SNAPSHOT</codeforce.version>
+        <codeforce.version>2.4</codeforce.version>
         <mybatis.version>3.5.6</mybatis.version>
         <spring.version>5.3.6</spring.version>
         <mybatis-spring.version>2.0.6</mybatis-spring.version>
