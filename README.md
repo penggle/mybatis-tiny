@@ -22,6 +22,21 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   //顺便说一句：对于MySQL不建议在XML中使用<foreach/>来拼接insert into values(..),(..),(...);诚然MySQL底层驱动在开启JDBC-Batch特性时也是将多条单个insert语句改写成insert into values(..),(..),(...)，但是作为客户端程序无法掌握SQL语句字节大小，小了体现不出来JDBC-Batch特性的威力，大了容易报错，所以这个度还是让驱动自己去掌控。
   //注意对于MySQL需要开启秘籍参数(rewriteBatchedStatements=true)才能正在开启JDBC-Batch特性
   productSaleSpecMapper.batchUpdate(productSaleSpecs, productSaleSpec -> productSaleSpecMapper.insert(productSaleSpec));
+  
+   - ==>  Preparing: INSERT INTO t_product_base_info( product_id, product_name, product_url, product_tags, product_type, audit_status, online_status, shop_id, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
+   - ==> Parameters: null, 24期免息【当天发】Huawei/华为Mate40 5G手机官方旗舰店50pro直降mate40e官网30正品4G鸿蒙正品30全网通(String), https://detail.tmall.com/item.htm?id=633658852628(String), ["手机通讯","手机","手机"](String), 1(Integer), 0(Integer), 1(Integer), 111212422(Long), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - <==    Updates: 1
+  
+   - ==>  Preparing: INSERT INTO t_product_sale_spec( product_id, spec_no, spec_name, spec_index, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ? )
+   - ==> Parameters: 1(Long), 101(String), 4G全网通(String), 1(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 102(String), 5G全网通(String), 2(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 201(String), 亮黑色(String), 1(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 202(String), 釉白色(String), 2(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 203(String), 秘银色(String), 3(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 204(String), 夏日胡杨(String), 4(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 205(String), 秋日胡杨(String), 5(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 301(String), 8+128GB(String), 1(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
+   - ==> Parameters: 1(Long), 302(String), 8+256GB(String), 2(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
   ```
 
 - #### 更新操作
@@ -30,9 +45,12 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   //根据ID更新
   ProductBaseInfo productBase = ...;
   Map<String,Object> updateColumns1 = MapLambdaBuilder.of(productBase)
+          //取productBase实例中对应字段的值
           .with(ProductBaseInfo::getProductName)
           .with(ProductBaseInfo::getRemark)
+          //如果productBase实例中对应字段的值为空值(null|空串|空数组|空集合)则取default值"1"
           .withDefault(ProductBaseInfo::getProductType, 1)
+          //忽略productBase实例中对应字段的值，只取override值"0"
           .withOverride(ProductBaseInfo::getAuditStatus, 0)
           .withOverride(ProductBaseInfo::getOnlineStatus, 0)
           .withOverride(ProductBaseInfo::getUpdateTime, DateTimeUtils.formatNow())
@@ -82,6 +100,10 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "102"));
   ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "103"));
   List<ProductSaleSpec> productSaleSpecs = productSaleSpecMapper.selectListByIds(ids);
+  
+   - ==>  Preparing: SELECT product_id AS productId, spec_no AS specNo, spec_name AS specName, spec_index AS specIndex, remark AS remark, DATE_FORMAT(create_time, '%Y-%m-%d %T') AS createTime, DATE_FORMAT(update_time, '%Y-%m-%d %T') AS updateTime FROM t_product_sale_spec WHERE (product_id = ? AND spec_no = ?) OR (product_id = ? AND spec_no = ?) OR (product_id = ? AND spec_no = ?)
+   - ==> Parameters: 1(Long), 101(String), 1(Long), 102(String), 1(Long), 103(String)
+   - <==      Total: 2
   
   //根据条件查询
   QueryCriteria<ProductSaleSpec> queryCriteria1 = LambdaQueryCriteria.ofSupplier(ProductSaleSpec::new)
