@@ -208,7 +208,7 @@ public abstract class ProductTestCase {
         ProductBaseInfo condition = new ProductBaseInfo();
         condition.setProductType(1);
         condition.setAuditStatuses(Arrays.asList(0,1,2));
-        List<ProductBaseInfo> productBases = getProductBaseInfoMapper().selectProductsByCondition(condition);
+        List<ProductBaseInfo> productBases = getProductBaseInfoMapper().selectProductsByCondition(condition, new RowBounds(5,5));
         if(productBases != null) {
             productBases.forEach(item -> System.out.println(JsonUtils.object2Json(item)));
         }
@@ -298,7 +298,8 @@ public abstract class ProductTestCase {
         getProductExtraInfoMapper().deleteById(2L);
 
         QueryCriteria<ProductSaleSpec> queryCriteria1 = LambdaQueryCriteria.ofSupplier(ProductSaleSpec::new)
-                .eq(ProductSaleSpec::getProductId, 2L);
+                .eq(ProductSaleSpec::getProductId, 2L)
+                .limit(5);
         getProductSaleSpecMapper().deleteByCriteria(queryCriteria1);
 
         QueryCriteria<ProductSaleStock> queryCriteria2 = LambdaQueryCriteria.ofSupplier(ProductSaleStock::new)

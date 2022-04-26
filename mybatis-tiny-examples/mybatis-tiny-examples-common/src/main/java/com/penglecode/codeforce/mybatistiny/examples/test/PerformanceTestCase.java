@@ -5,6 +5,7 @@ import com.penglecode.codeforce.mybatistiny.dsl.LambdaQueryCriteria;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.examples.dal.mapper.ProductBaseInfoMapper;
 import com.penglecode.codeforce.mybatistiny.examples.domain.model.ProductBaseInfo;
+import org.apache.ibatis.session.RowBounds;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public abstract class PerformanceTestCase {
                 .in(ProductBaseInfo::getAuditStatus, queryRequest.getAuditStatuses().toArray())
                 .orderBy(OrderBy.desc(ProductBaseInfo::getCreateTime))
                 .dynamic(true); //自动过滤掉为空值(null|空串|空数组|空集合)的查询参数
-        return getProductBaseInfoMapper().selectListByCriteria(queryCriteria);
+        return getProductBaseInfoMapper().selectPageListByCriteria(queryCriteria, new RowBounds(5,5));
     }
 
     /**
@@ -65,7 +66,7 @@ public abstract class PerformanceTestCase {
         ProductBaseInfo condition = new ProductBaseInfo();
         condition.setProductType(1);
         condition.setAuditStatuses(Arrays.asList(0,1,2));
-        return getProductBaseInfoMapper().selectProductsByCondition(condition);
+        return getProductBaseInfoMapper().selectProductsByCondition(condition, new RowBounds(5,5));
     }
 
     public abstract ProductBaseInfoMapper getProductBaseInfoMapper();

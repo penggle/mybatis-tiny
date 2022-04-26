@@ -6,7 +6,6 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.session.Configuration;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,10 +47,11 @@ public class RewriteSql {
      * @param configuration     - Mybatis的全局Configuration
      * @param boundSql          - 原始SQL
      */
+    @SuppressWarnings("unchecked")
     public void rewriteSql(Configuration configuration, BoundSql boundSql) {
         MetaObject boundSqlMetaObject = SystemMetaObject.forObject(boundSql);
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-        Map<String, Object> additionalParameters = getPropertyValue(boundSqlMetaObject, "additionalParameters");
+        Map<String, Object> additionalParameters = (Map<String, Object>) boundSqlMetaObject.getValue("additionalParameters");
         for(AdditionalParameter additionalParameter : this.additionalParameters) {
             if(additionalParameter.isAddFirst()) { //在原SQL参数前加入
                 parameterMappings.add(0, new ParameterMapping.Builder(configuration, additionalParameter.getParamName(), additionalParameter.getParamType()).build());
@@ -63,20 +63,18 @@ public class RewriteSql {
         boundSqlMetaObject.setValue("sql", getSql());
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getPropertyValue(MetaObject boundSql, String property) {
-        return (T) boundSql.getValue(property);
-    }
-
     public static class AdditionalParameter {
 
-        /** 添加在BoundSql.parameterMappings对头? */
+        /** 添加在BoundSql.parameterMappings的头部? */
         private final boolean addFirst;
 
+        /** 参数名称 */
         private final String paramName;
 
+        /** 参数类型 */
         private final Object paramValue;
 
+        /** 参数类型 */
         private final Class<?> paramType;
 
         public AdditionalParameter(String paramName, Object paramValue, Class<?> paramType) {

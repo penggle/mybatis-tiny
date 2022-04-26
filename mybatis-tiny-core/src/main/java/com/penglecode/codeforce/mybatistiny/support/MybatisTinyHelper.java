@@ -34,7 +34,7 @@ public class MybatisTinyHelper {
      *
      * @param selectClause  - SELECT列字句
      * @param columnName    - 列名
-     * @return
+     * @return 返回解析后的SELECT列字句
      */
     public static String parseSelectClause(String selectClause, String columnName) {
         if(selectClause != null) {
@@ -50,8 +50,8 @@ public class MybatisTinyHelper {
     /**
      * 如果绑定参数中存在QueryCriteria，则获取之
      *
-     * @param boundSql
-     * @return
+     * @param boundSql  - 当前绑定的SQL
+     * @return 返回查询条件
      */
     public static Optional<QueryCriteria<? extends EntityObject>> getQueryCriteria(BoundSql boundSql) {
         String paramName = BaseEntityMapper.QUERY_CRITERIA_PARAM_NAME;
