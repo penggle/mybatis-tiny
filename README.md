@@ -474,7 +474,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
               connection-timeout: 30000
               #连接测试语句
               connection-test-query: SELECT 1
-  		username: root
+          username: root
           password: 123456
           url: jdbc:mysql://127.0.0.1:3306/examples?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=GMT%2B8&useSSL=false&rewriteBatchedStatements=true&useCursorFetch=true
   
