@@ -198,7 +198,8 @@ public abstract class QueryCriteria<E extends EntityObject> {
     }
 
     /**
-     * 检查OrderBy
+     * 由于ORDER BY子句不能应用参数化预编译特性，只能使用拼接SQL语句的方式来构造ORDER BY子句，
+     * 所以检查OrderBy防止SQL注入
      *
      * @param orderBy
      */

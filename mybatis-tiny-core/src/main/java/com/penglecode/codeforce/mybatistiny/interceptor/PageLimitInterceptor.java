@@ -4,6 +4,7 @@ import com.penglecode.codeforce.mybatistiny.core.DatabaseDialect;
 import com.penglecode.codeforce.mybatistiny.core.DatabaseDialectEnum;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.support.MybatisTinyHelper;
+import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.plugin.*;
@@ -31,40 +32,41 @@ public class PageLimitInterceptor implements Interceptor {
 		StatementHandler statementHandler = (StatementHandler)invocation.getTarget();
 		BoundSql boundSql = statementHandler.getBoundSql(); //获取绑定sql
 		MetaObject metaObject = MetaObject.forObject(statementHandler, new DefaultObjectFactory(), new DefaultObjectWrapperFactory(), new DefaultReflectorFactory());
-		DatabaseDialect dialect = getDatabaseDialect(metaObject);
+		Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+		DatabaseDialect dialect = getDatabaseDialect(configuration);
+		//delegate指的是RoutingStatementHandler.delegate
 		RowBounds rowBounds = (RowBounds) metaObject.getValue("delegate.rowBounds");
 		if(rowBounds == null || rowBounds == RowBounds.DEFAULT) { //如果当前不分页则需要处理QueryCriteria#limit(int)条件
 			//开始处理QueryCriteria.limit(xx)逻辑
 			Integer limit = MybatisTinyHelper.getQueryCriteria(boundSql).map(QueryCriteria::getLimit).orElse(null);
 			if(limit != null && limit > 0) {
-				String originalSql = boundSql.getSql();
-				metaObject.setValue("delegate.boundSql.sql", dialect.getLimitSql(originalSql, limit));
+				RewriteSql rewriteSql = dialect.getLimitSql(boundSql.getSql(), limit);
+				rewriteSql.rewriteSql(configuration, boundSql); //重写SQL
 			}
 			return invocation.proceed();
 		}
 		//反之，如果当前存在分页，则忽略QueryCriteria#limit(int)条件
 		//开始处理分页逻辑
-		String originalSql = boundSql.getSql();
-		metaObject.setValue("delegate.boundSql.sql", dialect.getPageSql(originalSql, rowBounds.getOffset(), rowBounds.getLimit()));
+		RewriteSql rewriteSql = dialect.getPageSql(boundSql.getSql(), rowBounds.getOffset(), rowBounds.getLimit());
+		rewriteSql.rewriteSql(configuration, boundSql); //重写SQL
 		//metaObject.setValue("delegate.rowBounds", RowBounds.DEFAULT); //不能重置rowBounds引用为DEFAULT(应该使用下面方式设置offset和limit)，否则会出现结果集为0的问题
 		metaObject.setValue("delegate.rowBounds.offset", RowBounds.NO_ROW_OFFSET);
 		metaObject.setValue("delegate.rowBounds.limit", RowBounds.NO_ROW_LIMIT);
 		return invocation.proceed();
 	}
 
-	protected DatabaseDialect getDatabaseDialect(MetaObject metaObject) {
+	protected DatabaseDialect getDatabaseDialect(Configuration configuration) {
 		if(databaseDialect == null) {
 			synchronized (this) {
 				if(databaseDialect == null) {
-					databaseDialect = initDatabaseDialect(metaObject);
+					databaseDialect = initDatabaseDialect(configuration);
 				}
 			}
 		}
 		return databaseDialect;
 	}
 
-	protected DatabaseDialect initDatabaseDialect(MetaObject metaObject) {
-		Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+	protected DatabaseDialect initDatabaseDialect(Configuration configuration) {
 		String databaseId = configuration.getDatabaseId();
 		return DatabaseDialectEnum.getDialect(databaseId);
 	}

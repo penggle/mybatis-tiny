@@ -1,6 +1,8 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
+import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
+import com.penglecode.codeforce.mybatistiny.support.RewriteSql.AdditionalParameter;
 
 import java.util.*;
 
@@ -24,27 +26,35 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
                                                               + " WHERE page_outer_table.rn_ > %s";
 
         @Override
-        public String getPageSql(String sql, int offset, int limit) {
+        public RewriteSql getPageSql(String sql, int offset, int limit) {
             String upperSql = sql.toUpperCase();
+            String finalSql = sql;
+            List<AdditionalParameter> additionalParameters = new ArrayList<>();
             if(upperSql.startsWith("SELECT")) {
-                return String.format(DEFAULT_PAGING_SQL_FORMAT, sql, offset + limit, offset);
+                finalSql = String.format(DEFAULT_PAGING_SQL_FORMAT, sql, SQL_PARAM_MARKER, SQL_PARAM_MARKER);
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), offset + limit, Integer.class));
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(2), offset, Integer.class));
             }
-            return sql;
+            return new RewriteSql(finalSql, additionalParameters);
         }
 
         @Override
-        public String getLimitSql(String sql, int limit) {
+        public RewriteSql getLimitSql(String sql, int limit) {
             String upperSql = sql.toUpperCase();
+            String finalSql = sql;
+            List<AdditionalParameter> additionalParameters = new ArrayList<>();
             if(upperSql.startsWith("SELECT")) {
-                return "SELECT * FROM (" + sql + ") WHERE rownum <= " + limit;
+                finalSql = "SELECT * FROM (" + sql + ") WHERE rownum <= " + SQL_PARAM_MARKER;
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
             } else if(upperSql.startsWith("UPDATE") || upperSql.startsWith("DELETE")) { //TODO,此分支实现对于复杂SQL可能会存在问题
                 if(upperSql.contains(" WHERE ")) {
-                    return sql + " AND rownum <= " + limit;
+                    finalSql = sql + " AND rownum <= " + SQL_PARAM_MARKER;
                 } else {
-                    return sql + " WHERE rownum <= " + limit;
+                    finalSql = sql + " WHERE rownum <= " + SQL_PARAM_MARKER;
                 }
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
             }
-            return sql;
+            return new RewriteSql(finalSql, additionalParameters);
         }
 
     },
@@ -54,21 +64,28 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
      */
     MYSQL() {
         @Override
-        public String getPageSql(String sql, int offset, int limit) {
+        public RewriteSql getPageSql(String sql, int offset, int limit) {
             String upperSql = sql.toUpperCase();
+            String finalSql = sql;
+            List<AdditionalParameter> additionalParameters = new ArrayList<>();
             if(upperSql.startsWith("SELECT")) {
-                return sql + " LIMIT " + offset + ", " + limit;
+                finalSql = sql + " LIMIT " + SQL_PARAM_MARKER + ", " + SQL_PARAM_MARKER;
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), offset, Integer.class));
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(2), limit, Integer.class));
             }
-            return sql;
+            return new RewriteSql(finalSql, additionalParameters);
         }
 
         @Override
-        public String getLimitSql(String sql, int limit) {
+        public RewriteSql getLimitSql(String sql, int limit) {
             String upperSql = sql.toUpperCase();
+            String finalSql = sql;
+            List<AdditionalParameter> additionalParameters = new ArrayList<>();
             if(upperSql.startsWith("SELECT") || upperSql.startsWith("UPDATE") || upperSql.startsWith("DELETE")) {
-                return sql + " LIMIT " + limit;
+                finalSql = sql + " LIMIT " + SQL_PARAM_MARKER;
+                additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
             }
-            return sql;
+            return new RewriteSql(finalSql, additionalParameters);
         }
 
         @Override
@@ -85,8 +102,8 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
     /**
      * 注册额外的数据库方言，方言扩展入口
      *
-     * @param databaseId        - 数据库ID，例如mysql,oracle等，不区分大小写
-     * @param dialect
+     * @param databaseId    - 数据库ID，例如mysql,oracle等，不区分大小写
+     * @param dialect       - 方言实现
      */
     public static void registerDialect(String databaseId, DatabaseDialect dialect) {
         ADDITIONAL_DIALECTS.put(databaseId.toUpperCase(), dialect);

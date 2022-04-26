@@ -153,7 +153,7 @@ public abstract class ProductTestCase {
         QueryCriteria<ProductBaseInfo> queryCriteria1 = LambdaQueryCriteria.ofSupplier(ProductBaseInfo::new)
                 .eq(ProductBaseInfo::getProductType, 1)
                 .orderBy(OrderBy.desc(ProductBaseInfo::getCreateTime))
-                .limit(10);
+                .limit(5);
         QueryColumns queryColumns = new QueryColumns(ProductBaseInfo::getProductId, ProductBaseInfo::getProductName, ProductBaseInfo::getProductType, ProductBaseInfo::getAuditStatus, ProductBaseInfo::getOnlineStatus);
         List<ProductBaseInfo> productBases = getProductBaseInfoMapper().selectListByCriteria(queryCriteria1, queryColumns);
         if(productBases != null) {
