@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.penggle</groupId>
+    <groupId>io.github.penggle</groupId>
     <artifactId>mybatis-tiny-parent</artifactId>
     <version>3.5</version>
     <packaging>pom</packaging>
@@ -75,28 +75,28 @@
         <dependencies>
             <!-- mybatis-tiny-base -->
             <dependency>
-                <groupId>com.github.penggle</groupId>
+                <groupId>io.github.penggle</groupId>
                 <artifactId>mybatis-tiny-base</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- mybatis-tiny-core -->
             <dependency>
-                <groupId>com.github.penggle</groupId>
+                <groupId>io.github.penggle</groupId>
                 <artifactId>mybatis-tiny-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- codeforce-common-base -->
             <dependency>
-                <groupId>com.github.penggle</groupId>
+                <groupId>io.github.penggle</groupId>
                 <artifactId>codeforce-common-base</artifactId>
                 <version>${codeforce.version}</version>
             </dependency>
 
             <!-- codeforce-common-domain -->
             <dependency>
-                <groupId>com.github.penggle</groupId>
+                <groupId>io.github.penggle</groupId>
                 <artifactId>codeforce-common-domain</artifactId>
                 <version>${codeforce.version}</version>
             </dependency>
