@@ -2,13 +2,13 @@
 
 
 
-## Mybatis-Tiny基本简介
+## 基本简介
 
 Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简的扩展，它旨在使用DSL的方式对单表进行CRUD操作，类似于Mybatis-Plus框架，但它绝不是重复造轮子！区别于别的类似框架（如Mybatis-Plus、Fluent-Mybatis等）的实现方式，它采用一种逆向曲线救国的实现方式，通过较少的代码，极简的扩展实现了类似于他们大多数的功能，完全满足日常开发中对单表的各种CRUD操作。
 
 
 
-## Mybatis-Tiny快速入门
+## 快速入门
 
 > **Talk is cheap，show me the code！**
 
@@ -145,7 +145,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
 
 
-## Mybatis-Tiny特性及限制
+## 特性及限制
 
 - 支持单一主键或联合主键，单一主键时主键策略支持：IDENTITY(数据库自增的)，SEQUENCE(基于序列的)，NONE(无，客户端自己设置主键)
 
@@ -318,7 +318,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
   
 
-## Mybatis-Tiny使用方式
+## 使用方式
 
 Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置，其仅依赖Mybatis本身（不依赖于Spring或SpringBoot）
 
@@ -468,7 +468,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
   我不管你其他框架具体是啥，只要sqlSessionFactory实例是通过DecoratedSqlSessionFactoryBuilder弄出来的就行了！！！
 
-## Mybatis-Tiny实现原理
+## 实现原理
 
 > 区别于别的类似框架（如Mybatis-Plus、Fluent-Mybatis等）的实现方式，它采用一种逆向曲线救国的实现方式，通过较少的代码，极简的扩展实现了类似于他们大多数的功能，完全满足日常开发中对单表的各种CRUD操作。
 
