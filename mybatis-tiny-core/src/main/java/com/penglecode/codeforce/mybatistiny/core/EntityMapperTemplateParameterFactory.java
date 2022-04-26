@@ -7,7 +7,6 @@ import com.penglecode.codeforce.mybatistiny.annotations.Id;
 import com.penglecode.codeforce.mybatistiny.annotations.Table;
 import com.penglecode.codeforce.mybatistiny.core.EntityMapperTemplateParameter.ColumnParameter;
 import com.penglecode.codeforce.mybatistiny.core.EntityMeta.EntityField;
-import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
 import com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper;
 import org.springframework.util.Assert;
@@ -50,7 +49,6 @@ public class EntityMapperTemplateParameterFactory {
 
         Table tableAnnotation = parameter.getEntityMeta().getTableAnnotation();
         parameter.setTableName(tableAnnotation.value());
-        parameter.setTableAlias(QueryCriteria.TABLE_ALIAS_NAME);
 
         Map<String,EntityField> entityFields = parameter.getEntityMeta().getFieldNameKeyedFields();
         List<ColumnParameter> allColumns = entityFields.values().stream().map(ColumnParameter::new).collect(Collectors.toList());
@@ -71,8 +69,6 @@ public class EntityMapperTemplateParameterFactory {
             parameter.setIdStrategy(GenerationType.NONE.name());
             parameter.setIdGenerator(null);
         }
-
-        parameter.setDeleteTargetAlias(databaseDialect.getDeleteTargetAlias());
         return parameter;
     }
 

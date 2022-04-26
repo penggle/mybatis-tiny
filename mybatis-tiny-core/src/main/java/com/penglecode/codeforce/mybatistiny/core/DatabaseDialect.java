@@ -44,13 +44,4 @@ public interface DatabaseDialect {
      */
     RewriteSql getLimitSql(String sql, int limit);
 
-    /**
-     * DELETE语句别名方言
-     *
-     * @return
-     */
-    default String getDeleteTargetAlias() {
-        return "";
-    }
-
 }

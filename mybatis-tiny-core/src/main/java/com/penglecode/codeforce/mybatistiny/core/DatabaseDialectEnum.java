@@ -1,10 +1,12 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
-import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql.AdditionalParameter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据库方言
@@ -88,10 +90,6 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
             return new RewriteSql(finalSql, additionalParameters);
         }
 
-        @Override
-        public String getDeleteTargetAlias() {
-            return QueryCriteria.TABLE_ALIAS_NAME;
-        }
     };
 
     /**

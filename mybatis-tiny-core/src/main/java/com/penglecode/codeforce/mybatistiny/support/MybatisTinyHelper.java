@@ -21,8 +21,6 @@ public class MybatisTinyHelper {
     private static final Set<String> SELECT_CLAUSE_PATTERNS = new LinkedHashSet<>();
 
     static {
-        SELECT_CLAUSE_PATTERNS.add(QueryCriteria.TABLE_ALIAS_NAME + ".{name}");
-        SELECT_CLAUSE_PATTERNS.add(QueryCriteria.TABLE_ALIAS_NAME + ".{columnName}");
         SELECT_CLAUSE_PATTERNS.add("{name}");
         SELECT_CLAUSE_PATTERNS.add("{columnName}");
     }
@@ -40,11 +38,11 @@ public class MybatisTinyHelper {
         if(selectClause != null) {
             for(String pattern : SELECT_CLAUSE_PATTERNS) {
                 if(selectClause.contains(pattern)) {
-                    return selectClause.replace(pattern, QueryCriteria.TABLE_ALIAS_NAME + "." + columnName);
+                    return selectClause.replace(pattern, columnName);
                 }
             }
         }
-        return QueryCriteria.TABLE_ALIAS_NAME + "." + columnName;
+        return columnName;
     }
 
     /**

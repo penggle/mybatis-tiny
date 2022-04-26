@@ -24,8 +24,6 @@ public abstract class QueryCriteria<E extends EntityObject> {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String TABLE_ALIAS_NAME = "t";
-
     /**
      * 查询条件绑定的example类型
      */
@@ -211,7 +209,7 @@ public abstract class QueryCriteria<E extends EntityObject> {
         }
         if(orderByField != null) { //如果排序列确实存在
             //考虑到在调用BaseEntityMapper中的查询方法时：指定了select列，指定了OrderBy排序字段，但是排序字段不在select列中的情况需要特殊处理，即处统一使用数据库列名来作为排序字段
-            orderBy.setProperty(TABLE_ALIAS_NAME + "." + orderByField.getColumnName());
+            orderBy.setProperty(orderByField.getColumnName());
             return orderBy;
         }
         //字段不存在则返回null，即在程序层面规避SQL注入

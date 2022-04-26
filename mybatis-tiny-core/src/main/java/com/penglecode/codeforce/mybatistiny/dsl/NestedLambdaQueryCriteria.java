@@ -150,7 +150,7 @@ public abstract class NestedLambdaQueryCriteria<E extends EntityObject> extends 
         checkCriteriaFrozen();
         Assert.notNull(column, "Parameter 'column' can not be null!");
         ImmutablePair<String,Object> conditionAndValue = introspectConditionStatement(operator.getType(), column, overrideValue);
-        addCriterion(new ColumnCriterion(currentLogicOperator.toString(), TABLE_ALIAS_NAME + "." + conditionAndValue.getLeft() + " " + operator.getOperator(), operator.getType(), conditionAndValue.getRight(), operator.opValue(conditionAndValue.getRight())));
+        addCriterion(new ColumnCriterion(currentLogicOperator.toString(), conditionAndValue.getLeft() + " " + operator.getOperator(), operator.getType(), conditionAndValue.getRight(), operator.opValue(conditionAndValue.getRight())));
         return this;
     }
 

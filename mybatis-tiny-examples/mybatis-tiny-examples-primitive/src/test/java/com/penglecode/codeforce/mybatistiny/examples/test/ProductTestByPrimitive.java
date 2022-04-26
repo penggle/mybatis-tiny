@@ -140,7 +140,7 @@ public class ProductTestByPrimitive extends ProductTestCase {
     }
 
     /**
-     * 测试根据动态条件查询
+     * 测试根据动态条件查询以及自动分页示例（这里自动分页不包括查COUNT）
      */
     @Test
     public void selectProductsByConditionTest() {

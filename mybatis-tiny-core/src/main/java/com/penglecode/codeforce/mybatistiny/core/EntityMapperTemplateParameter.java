@@ -32,9 +32,6 @@ public class EntityMapperTemplateParameter {
     /** 表名 */
     private String tableName;
 
-    /** 表别名 */
-    private String tableAlias;
-
     /** 实体名称 */
     private String entityName;
 
@@ -61,9 +58,6 @@ public class EntityMapperTemplateParameter {
 
     /** 全部列 */
     private List<ColumnParameter> allColumns;
-
-    /** DELETE语句别名 */
-    private String deleteTargetAlias;
 
     public Class<BaseEntityMapper<? extends EntityObject>> getEntityMapperClass() {
         return entityMapperClass;
@@ -103,14 +97,6 @@ public class EntityMapperTemplateParameter {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
-    }
-
-    public String getTableAlias() {
-        return tableAlias;
-    }
-
-    public void setTableAlias(String tableAlias) {
-        this.tableAlias = tableAlias;
     }
 
     public String getEntityName() {
@@ -183,14 +169,6 @@ public class EntityMapperTemplateParameter {
 
     public void setAllColumns(List<ColumnParameter> allColumns) {
         this.allColumns = allColumns;
-    }
-
-    public String getDeleteTargetAlias() {
-        return deleteTargetAlias;
-    }
-
-    public void setDeleteTargetAlias(String deleteTargetAlias) {
-        this.deleteTargetAlias = deleteTargetAlias;
     }
 
     /**

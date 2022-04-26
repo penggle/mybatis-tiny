@@ -21,7 +21,7 @@
         <trim suffixOverrides=",">
         <#list selectColumns as column>
             <if test="@${mapperHelperClass}@containsColumn(columns, '${column.fieldName}')">
-                ${column.selectClause}   ${column.fieldName},
+                ${column.selectClause}  AS  ${column.fieldName},
             </if>
         </#list>
         </trim>
@@ -31,7 +31,7 @@
         <trim suffixOverrides=",">
         <#list updateColumns as column>
             <if test="@${mapperHelperClass}@containsColumn(columns, '${column.fieldName}')">
-                ${tableAlias}.${column.columnName} = <#noparse>#{</#noparse>columns.${column.fieldName}, <#if column.typeHandler != "org.apache.ibatis.type.UnknownTypeHandler">javaType=${column.fieldType}, typeHandler=${column.typeHandler}<#else>jdbcType=${column.jdbcTypeName}</#if><#noparse>}</#noparse>,
+                ${column.columnName} = <#noparse>#{</#noparse>columns.${column.fieldName}, <#if column.typeHandler != "org.apache.ibatis.type.UnknownTypeHandler">javaType=${column.fieldType}, typeHandler=${column.typeHandler}<#else>jdbcType=${column.jdbcTypeName}</#if><#noparse>}</#noparse>,
             </if>
         </#list>
         </trim>
@@ -55,99 +55,99 @@
     </insert>
 
     <update id="updateById" parameterType="java.util.Map" statementType="PREPARED">
-        UPDATE ${tableName} ${tableAlias}
+        UPDATE ${tableName}
            SET <include refid="UpdateDynamicColumnsClause"/>
-         WHERE <#list idColumns as column>${tableAlias}.${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+         WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </update>
 
     <update id="updateByCriteria" parameterType="java.util.Map" statementType="PREPARED">
-        UPDATE ${tableName} ${tableAlias}
+        UPDATE ${tableName}
            SET <include refid="UpdateDynamicColumnsClause"/>
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </update>
 
     <delete id="deleteById" parameterType="java.util.Map" statementType="PREPARED">
-        DELETE ${deleteTargetAlias} FROM ${tableName} ${tableAlias}
-         WHERE <#list idColumns as column>${tableAlias}.${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+        DELETE FROM ${tableName}
+         WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </delete>
 
     <delete id="deleteByIds" parameterType="java.util.Map" statementType="PREPARED">
     <#if (idColumns?size == 1)>
-        DELETE ${deleteTargetAlias} FROM ${tableName} ${tableAlias}
-         WHERE ${tableAlias}.${idColumns[0].columnName} in
+        DELETE FROM ${tableName}
+         WHERE ${idColumns[0].columnName} in
         <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
             <#noparse>#{</#noparse>id, jdbcType=${idColumns[0].jdbcTypeName}<#noparse>}</#noparse>
         </foreach>
     <#else>
-        DELETE ${deleteTargetAlias} FROM ${tableName} ${tableAlias}
-         WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${tableAlias}.${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
+        DELETE FROM ${tableName}
+         WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
     </#if>
     </delete>
 
     <delete id="deleteByCriteria" parameterType="java.util.Map" statementType="PREPARED">
-        DELETE ${deleteTargetAlias} FROM ${tableName} ${tableAlias}
+        DELETE FROM ${tableName}
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </delete>
 
     <select id="selectById" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
-         WHERE <#list idColumns as column>${tableAlias}.${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+          FROM ${tableName} 
+         WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </select>
 
     <select id="selectByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </select>
 
     <select id="selectCountByCriteria" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
         SELECT COUNT(*)
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </select>
 
     <select id="selectListByIds" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
     <#if (idColumns?size == 1)>
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
-         WHERE ${tableAlias}.${idColumns[0].columnName} in
+          FROM ${tableName} 
+         WHERE ${idColumns[0].columnName} in
         <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
             <#noparse>#{</#noparse>id, jdbcType=${idColumns[0].jdbcTypeName}<#noparse>}</#noparse>
         </foreach>
     <#else>
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
-         WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${tableAlias}.${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
+          FROM ${tableName} 
+         WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
     </#if>
     </select>
 
     <select id="selectAllList" parameterType="java.util.Map" resultMap="SelectBaseResultMap" resultSetType="FORWARD_ONLY" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
     </select>
 
     <select id="selectAllCount" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
-        SELECT COUNT(*) FROM ${tableName} ${tableAlias}
+        SELECT COUNT(*) FROM ${tableName} 
     </select>
 
     <select id="selectListByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
         <include refid="CommonMybatisMapper.CommonOrderByCriteriaClause"/>
     </select>
 
     <select id="selectPageListByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
         <include refid="CommonMybatisMapper.CommonOrderByCriteriaClause"/>
     </select>
 
     <select id="selectPageCountByCriteria" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
         SELECT COUNT(*)
-          FROM ${tableName} ${tableAlias}
+          FROM ${tableName} 
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </select>
     <!-- Auto-Generation Code End -->

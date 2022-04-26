@@ -125,6 +125,8 @@ public abstract class ProductTestCase {
             productBases.forEach(item -> System.out.println(JsonUtils.object2Json(item)));
         }
 
+        System.out.println("-----------------------------------------------");
+
         List<ID> ids = new ArrayList<>();
         ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "101"));
         ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "102"));
@@ -202,7 +204,7 @@ public abstract class ProductTestCase {
     }
 
     /**
-     * 根据动态条件查询
+     * 根据动态条件查询以及自动分页示例（这里自动分页不包括查COUNT）
      */
     protected void selectProductsByCondition() {
         ProductBaseInfo condition = new ProductBaseInfo();
