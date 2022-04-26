@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 public interface BaseEntityMapper<T extends EntityObject> extends BaseMapper {
 
     /**
-     * 这里需要保持与BaseXxxMapper中的@Param参数名一致
+     * 这里需要保持与BaseEntityMapper中的@Param参数名一致
      */
     String QUERY_CRITERIA_PARAM_NAME = "criteria";
 

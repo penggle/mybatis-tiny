@@ -498,7 +498,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
 - #### 实现要点
 
-  1. `BaseEntityMapper`的定义：
+  1. `[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)`的定义：
 
      ```java
      package com.penglecode.codeforce.mybatistiny.mapper;
