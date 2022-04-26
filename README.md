@@ -8,9 +8,146 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
 
 
+## Mybatis-Tiny快速入门
+
+> **Talk is cheap，show me the code！**
+
+- #### 插入操作
+
+  ```java
+  ProductBaseInfo productBase = ...;
+  List<ProductSaleSpec> productSaleSpecs = ...;
+  productBaseInfoMapper.insert(productBase);
+  //基于JDBC-Batch特性的批量插入操作。
+  //顺便说一句：对于MySQL不建议在XML中使用<foreach/>来拼接insert into values(..),(..),(...);诚然MySQL底层驱动在开启JDBC-Batch特性时也是将多条单个insert语句改写成insert into values(..),(..),(...)，但是作为客户端程序无法掌握SQL语句字节大小，小了体现不出来JDBC-Batch特性的威力，大了容易报错，所以这个度还是让驱动自己去掌控。
+  //注意对于MySQL需要开启秘籍参数(rewriteBatchedStatements=true)才能正在开启JDBC-Batch特性
+  productSaleSpecMapper.batchUpdate(productSaleSpecs, productSaleSpec -> productSaleSpecMapper.insert(productSaleSpec));
+  ```
+
+- #### 更新操作
+
+  ```java
+  //根据ID更新
+  ProductBaseInfo productBase = ...;
+  Map<String,Object> updateColumns1 = MapLambdaBuilder.of(productBase)
+          .with(ProductBaseInfo::getProductName)
+          .with(ProductBaseInfo::getRemark)
+          .withDefault(ProductBaseInfo::getProductType, 1)
+          .withOverride(ProductBaseInfo::getAuditStatus, 0)
+          .withOverride(ProductBaseInfo::getOnlineStatus, 0)
+          .withOverride(ProductBaseInfo::getUpdateTime, DateTimeUtils.formatNow())
+          .build();
+  productBaseInfoMapper.updateById(productBase.getProductId(), updateColumns1);
+  //productBaseInfoMapper.updateById(productBase.identity(), updateColumns);
+  
+  //根据条件更新
+  Map<String,Object> updateColumns2 = MapLambdaBuilder.<ProductBaseInfo>ofEmpty()
+          .withOverride(ProductBaseInfo::getOnlineStatus, 0)
+          .withOverride(ProductBaseInfo::getUpdateTime, DateTimeUtils.formatNow())
+          .build();
+  QueryCriteria<ProductBaseInfo> updateCriteria2 = LambdaQueryCriteria.ofSupplier(ProductBaseInfo::new)
+          .eq(ProductBaseInfo::getProductType, 1)
+      	.in(ProductBaseInfo::getAuditStatus, 0, 1)
+          .limit(5);
+  productBaseInfoMapper.updateByCriteria(updateCriteria2, updateColumns2);
+  
+  //批量更新
+  List<ProductSaleStock> productSaleStocks = ...;
+  String nowTime = DateTimeUtils.formatNow();
+  productSaleStockMapper.batchUpdate(productSaleStocks, productSaleStock -> {
+      Map<String,Object> updateColumns = MapLambdaBuilder.of(productSaleStock)
+          .withOverride(ProductSaleStock::getSellPrice, productSaleStock.getSellPrice() - productSaleStock.getSellPrice() % 100)
+          .withOverride(ProductSaleStock::getUpdateTime, nowTime)
+          .build();
+      productSaleStockMapper.updateById(productSaleStock.identity(), updateColumns);
+  });
+  ```
+  
+- #### 查询操作
+
+  ```java
+  //根据ID查
+  ProductBaseInfo productBase1 = productBaseInfoMapper.selectById(1L);
+  
+  ProductBaseInfo productBase2 = productBaseInfoMapper.selectById(10L, new QueryColumns(ProductBaseInfo::getProductId, ProductBaseInfo::getProductName, ProductBaseInfo::getAuditStatus, ProductBaseInfo::getOnlineStatus));
+  
+  ID id = new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "101");
+  ProductSaleSpec productSaleSpec = productSaleSpecMapper.selectById(id);
+  
+  //根据多个ID查询
+  List<ProductBaseInfo> productBases = productBaseInfoMapper.selectListByIds(Arrays.asList(5L, 6L, 7L, 8L, 9L));
+  
+  List<ID> ids = new ArrayList<>();
+  ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "101"));
+  ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "102"));
+  ids.add(new ID().addKey(ProductSaleSpec::getProductId, 1L).addKey(ProductSaleSpec::getSpecNo, "103"));
+  List<ProductSaleSpec> productSaleSpecs = productSaleSpecMapper.selectListByIds(ids);
+  
+  //根据条件查询
+  QueryCriteria<ProductSaleSpec> queryCriteria1 = LambdaQueryCriteria.ofSupplier(ProductSaleSpec::new)
+                  .eq(ProductSaleSpec::getProductId, 1L)
+                  .eq(ProductSaleSpec::getSpecNo, "101");
+  ProductSaleSpec productSaleSpec = productSaleSpecMapper.selectByCriteria(queryCriteria1);
+  
+  ProductSaleStock queryRequest1 = ...;
+  QueryCriteria<ProductSaleStock> queryCriteria2 = LambdaQueryCriteria.of(queryRequest1)
+                  .eq(ProductSaleStock::getProductId)
+                  .likeRight(ProductSaleStock::getSpecNo)
+                  .between(ProductSaleStock::getStock, queryRequest1.getMinStock(), queryRequest1.getMaxStock())
+                  .orderBy(OrderBy.desc(ProductSaleStock::getSellPrice));
+  List<ProductSaleStock> productStocks = productSaleStockMapper.selectListByCriteria(queryCriteria2);
+  
+  QueryCriteria<ProductBaseInfo> queryCriteria3 = LambdaQueryCriteria.of(queryRequest2)
+                  .and(nestedCriteria -> nestedCriteria.like(ProductBaseInfo::getProductName, "华为")
+                          .or().like(ProductBaseInfo::getProductName, "HUAWEI"))
+                  .eq(ProductBaseInfo::getProductType)
+                  .eq(ProductBaseInfo::getOnlineStatus)
+                  .in(ProductBaseInfo::getAuditStatus, queryRequest.getAuditStatuses().toArray())
+                  .orderBy(OrderBy.desc(ProductBaseInfo::getCreateTime))
+                  .dynamic(true); //自动过滤掉为空值(null|空串|空数组|空集合)的查询参数
+  List<ProductBaseInfo> productBases1 = productBaseInfoMapper.selectListByCriteria(queryCriteria3);
+  
+  //分页查询1
+  Page page = Page.of(1, 10);
+  QueryCriteria<ProductBaseInfo> queryCriteria4 = LambdaQueryCriteria.of(queryRequest)
+                  .likeRight(ProductBaseInfo::getProductName)
+                  .eq(ProductBaseInfo::getProductType)
+                  .eq(ProductBaseInfo::getOnlineStatus)
+                  .in(ProductBaseInfo::getAuditStatus, queryRequest.getAuditStatuses().toArray())
+                  .orderBy(page.getOrderBys())
+                  .dynamic(true); //自动过滤掉为空值(null|空串|空数组|空集合)的查询参数
+  List<ProductBaseInfo> productBases2 = productBaseInfoMapper.selectPageListByCriteria(queryCriteria4, new RowBounds(page.offset(), page.limit()));
+  //设置总记录数
+  page.setTotalRowCount(productBaseInfoMapper.selectPageCountByCriteria(queryCriteria4));
+  
+  //分页查询2(等效与上面)
+  Page page = Page.of(2, 10);
+  List<ProductBaseInfo> productBases2 = EntityMapperHelper.selectEntityObjectListByPage(productBaseInfoMapper, queryCriteria4, page);
+  ```
+
+- #### 删除操作
+
+  ```java
+  //根据ID删除
+  productBaseInfoMapper.deleteById(2L);
+  productExtraInfoMapper.deleteById(2L);
+  
+  //根据条件删除
+  QueryCriteria<ProductSaleSpec> queryCriteria1 = LambdaQueryCriteria.ofSupplier(ProductSaleSpec::new)
+                  .eq(ProductSaleSpec::getProductId, 2L)
+                  .limit(5);
+  productSaleSpecMapper.deleteByCriteria(queryCriteria1);
+  ```
+
+- 更多示例请见：https://github.com/penggle/mybatis-tiny/tree/main/mybatis-tiny-examples
+
+
+
+
+
 ## Mybatis-Tiny特性及限制
 
-- 支持单一主键或联合主键
+- 支持单一主键或联合主键，单一主键时主键策略支持：IDENTITY(数据库自增的)，SEQUENCE(基于序列的)，NONE(无，客户端自己设置主键)
 
   > 重复造轮子的初衷也是被Mybatis-Plus只能使用单一主键给恶心到了
 
@@ -36,7 +173,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
       private Integer onlineStatus;
       
       /** 所属店铺ID */
-      //shopId字段在所有update操作时不能被更新(不在update列中)
+      //shopId字段在所有update操作时不会被更新(不在update列中)
       @Column(updatable=false)
       private Long shopId;
   
@@ -44,7 +181,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
       private String remark;
   
       /** 创建时间 */
-      //createTime字段在所有update操作时不能被更新(不在update列中)
+      //createTime字段在所有update操作时不会被更新(不在update列中)
       @Column(updatable=false, select="DATE_FORMAT({name}, '%Y-%m-%d %T')")
       private String createTime;
   
@@ -115,6 +252,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   Map<String,Object> updateColumns = MapLambdaBuilder.of(updateRequest)
           .with(ProductBaseInfo::getProductName)
           .with(ProductBaseInfo::getRemark)
+          .withDefault(ProductBaseInfo::getProductType, 1)
           .withOverride(ProductBaseInfo::getAuditStatus, 0)
           .withOverride(ProductBaseInfo::getOnlineStatus, 0)
           .withOverride(ProductBaseInfo::getUpdateTime, DateTimeUtils.formatNow())
@@ -125,7 +263,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   ProductBaseInfo productBase = productBaseInfoMapper.selectById(1L, new QueryColumns(ProductBaseInfo::getProductId, ProductBaseInfo::getProductName, ProductBaseInfo::getAuditStatus, ProductBaseInfo::getOnlineStatus));
   ```
 
-- 自带分页功能那也是必须的，例如：
+- 自带基于RowBounds的分页功能，不管是调用`BaseEntityMapper#selectPageListByCriteria(QueryCriteria<T>, RowBounds)`还是调用自定义的分页查询方法`XxxMapper#selectXxxListByPage(Xxx condition, RowBounds)`都将会被自动分页，例如：
 
   ```java
   public List<ProductBaseInfo> queryProductListByPage(ProductBaseInfo queryRequest, Page page) {
@@ -150,6 +288,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
   ```java
   QueryCriteria<ProductBaseInfo> queryCriteria = LambdaQueryCriteria.of(queryRequest)
+                  //仅支持一层嵌套
                   .and(nestedCriteria -> nestedCriteria.like(ProductBaseInfo::getProductName, "华为")
                           .or().like(ProductBaseInfo::getProductName, "HUAWEI"))
                   .eq(ProductBaseInfo::getProductType)
