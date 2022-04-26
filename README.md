@@ -498,7 +498,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
 - #### 实现要点
 
-  1. `[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)`的定义：
+  1. [BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)的定义：
 
      ```java
      package com.penglecode.codeforce.mybatistiny.mapper;
@@ -527,7 +527,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
      public interface BaseEntityMapper<T extends EntityObject> extends BaseMapper {
      
          /**
-          * 这里需要保持与BaseXxxMapper中的@Param参数名一致
+          * 这里需要保持与BaseEntityMapper中的@Param参数名一致
           */
          String QUERY_CRITERIA_PARAM_NAME = "criteria";
      
@@ -731,14 +731,14 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
        
 
-  2. Xxx实体对象的通用Mapper接口（`BaseEntityMapper`）对应的`XxxMapper.xml`是通过freemarker模板(`BaseEntityMapper.ftl`)在应用启动时（准确地说是在**第一次**调用`SqlSession#getMapper(Class type)`方法的时候）自动生成代码的（你可以通过打开日志查看生成的`XxxMapper.xml`是啥样子），然后并加载进入Mybatis的`Configuration`中（实际是变成了许多`MappedStatement`对象了）。
+  2. Xxx实体对象的通用Mapper接口（`BaseEntityMapper`）对应的`XxxMapper.xml`是通过freemarker模板([BaseEntityMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.ftl))在应用启动时（准确地说是在**第一次**调用`SqlSession#getMapper(Class type)`方法的时候）自动生成代码的（你可以通过打开日志查看生成的`XxxMapper.xml`是啥样子），然后并加载进入Mybatis的`Configuration`中（实际是变成了许多`MappedStatement`对象了）。
 
      <u>**这一步解决了偷懒省去编写`XxxMapper.xml`的麻烦事。**</u>
 
   3. 基于Lambda的DSL方式查询实现通过下面几个组合实现的：
 
-     - `com.penglecode.codeforce.mybatistiny.dsl`包下的`QueryCriteria`、`LambdaQueryCriteria`、`NestedLambdaQueryCriteria`等主要实现DSL语法
-     - `com/penglecode/codeforce/mybatistiny/mapper/CommonMybatisMapper.xml`则提供了一个全局公共的Mybatis动态条件语句实现，这里我就不贴源码了。
+     - `com.penglecode.codeforce.mybatistiny.dsl`包下的[QueryCriteria](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/dsl/QueryCriteria.java)、[LambdaQueryCriteria](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/dsl/LambdaQueryCriteria.java)、[NestedLambdaQueryCriteria](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/dsl/NestedLambdaQueryCriteria.java)等主要实现DSL语法
+     - [CommonMybatisMapper.xml](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/CommonMybatisMapper.xml)则提供了一个全局公共的Mybatis动态条件语句实现，这里我就不贴源码了。
      - DSL这块的实现三言两语也说不清，还是需要看看源码才能知道其中的巧妙之处。
 
   4. 简而言之：
