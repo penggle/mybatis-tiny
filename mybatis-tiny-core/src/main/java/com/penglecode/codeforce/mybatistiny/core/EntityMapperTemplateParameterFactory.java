@@ -7,6 +7,7 @@ import com.penglecode.codeforce.mybatistiny.annotations.Id;
 import com.penglecode.codeforce.mybatistiny.annotations.Table;
 import com.penglecode.codeforce.mybatistiny.core.EntityMapperTemplateParameter.ColumnParameter;
 import com.penglecode.codeforce.mybatistiny.core.EntityMeta.EntityField;
+import com.penglecode.codeforce.mybatistiny.dialect.Dialect;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
 import com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper;
 import org.springframework.util.Assert;
@@ -24,10 +25,10 @@ import java.util.stream.Collectors;
  */
 public class EntityMapperTemplateParameterFactory {
 
-    private final DatabaseDialect databaseDialect;
+    private final Dialect dialect;
 
     public EntityMapperTemplateParameterFactory(String databaseId) {
-        this.databaseDialect = DatabaseDialectEnum.getDialect(databaseId);
+        this.dialect = DialectEnum.getDialect(databaseId);
     }
 
     public EntityMapperTemplateParameter createTemplateParameter(Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass, EntityMeta<? extends EntityObject> entityMeta) {
@@ -95,8 +96,8 @@ public class EntityMapperTemplateParameterFactory {
         }
     }
 
-    protected DatabaseDialect getDatabaseDialect() {
-        return databaseDialect;
+    protected Dialect getDatabaseDialect() {
+        return dialect;
     }
 
 }

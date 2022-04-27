@@ -89,7 +89,7 @@ public class DecoratedConfiguration extends Configuration {
     protected void initDatabaseId() {
         String databaseId = delegate.getDatabaseId();
         if(StringUtils.isNotBlank(databaseId)) { //如果应用程序设置了databaseId，则需要检查其对应的方言在DatabaseDialectEnum中是否注册
-            Assert.isTrue(DatabaseDialectEnum.hasRegisteredDialect(databaseId), String.format("Unsupported 'databaseId'(%s) in your Mybatis Configuration!", databaseId));
+            Assert.isTrue(DialectEnum.hasRegisteredDialect(databaseId), String.format("Unsupported 'databaseId'(%s) in your Mybatis Configuration!", databaseId));
         } else {
             DatabaseIdProvider databaseIdProvider = new DefaultDatabaseIdProvider();
             try {
@@ -97,7 +97,7 @@ public class DecoratedConfiguration extends Configuration {
             } catch (SQLException e) {
                 throw new IllegalStateException(String.format("Can't obtain databaseId: %s", e.getMessage()), e);
             }
-            Assert.isTrue(DatabaseDialectEnum.hasRegisteredDialect(databaseId), String.format("Unsupported 'databaseId'(%s), No suitable DatabaseDialect found!", databaseId));
+            Assert.isTrue(DialectEnum.hasRegisteredDialect(databaseId), String.format("Unsupported 'databaseId'(%s), No suitable DatabaseDialect found!", databaseId));
             delegate.setDatabaseId(databaseId);
         }
     }

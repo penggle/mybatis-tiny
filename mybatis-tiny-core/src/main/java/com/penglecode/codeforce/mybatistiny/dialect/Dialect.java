@@ -1,4 +1,4 @@
-package com.penglecode.codeforce.mybatistiny.core;
+package com.penglecode.codeforce.mybatistiny.dialect;
 
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
 
@@ -8,7 +8,7 @@ import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
  * @author pengpeng
  * @version 1.0
  */
-public interface DatabaseDialect {
+public interface Dialect {
 
     /**
      * SQL参数占位符

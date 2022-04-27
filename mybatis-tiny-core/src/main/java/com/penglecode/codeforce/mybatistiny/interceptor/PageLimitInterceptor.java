@@ -1,7 +1,7 @@
 package com.penglecode.codeforce.mybatistiny.interceptor;
 
-import com.penglecode.codeforce.mybatistiny.core.DatabaseDialect;
-import com.penglecode.codeforce.mybatistiny.core.DatabaseDialectEnum;
+import com.penglecode.codeforce.mybatistiny.dialect.Dialect;
+import com.penglecode.codeforce.mybatistiny.dialect.DialectManager;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.support.MybatisTinyHelper;
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
@@ -24,14 +24,14 @@ import java.sql.Connection;
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class PageLimitInterceptor implements Interceptor {
 
-	private volatile DatabaseDialect databaseDialect;
+	private volatile Dialect dialect;
 
 	public Object intercept(Invocation invocation) throws Throwable {
 		StatementHandler statementHandler = (StatementHandler)invocation.getTarget();
 		BoundSql boundSql = statementHandler.getBoundSql(); //获取绑定sql
 		MetaObject statementHandlerMetaObject = SystemMetaObject.forObject(statementHandler);
 		Configuration configuration = (Configuration) statementHandlerMetaObject.getValue("delegate.configuration");
-		DatabaseDialect dialect = getDatabaseDialect(configuration);
+		Dialect dialect = getDialect(configuration);
 		//delegate指的是RoutingStatementHandler.delegate
 		RowBounds rowBounds = (RowBounds) statementHandlerMetaObject.getValue("delegate.rowBounds");
 		if(rowBounds == null || rowBounds == RowBounds.DEFAULT) { //如果当前不分页则需要处理QueryCriteria#limit(int)条件
@@ -53,20 +53,20 @@ public class PageLimitInterceptor implements Interceptor {
 		return invocation.proceed();
 	}
 
-	protected DatabaseDialect getDatabaseDialect(Configuration configuration) {
-		if(databaseDialect == null) {
+	protected Dialect getDialect(Configuration configuration) {
+		if(dialect == null) {
 			synchronized (this) {
-				if(databaseDialect == null) {
-					databaseDialect = initDatabaseDialect(configuration);
+				if(dialect == null) {
+					dialect = initDialect(configuration);
 				}
 			}
 		}
-		return databaseDialect;
+		return dialect;
 	}
 
-	protected DatabaseDialect initDatabaseDialect(Configuration configuration) {
+	protected Dialect initDialect(Configuration configuration) {
 		String databaseId = configuration.getDatabaseId();
-		return DatabaseDialectEnum.getDialect(databaseId);
+		return DialectManager.getDialect(databaseId);
 	}
 
 	@Override

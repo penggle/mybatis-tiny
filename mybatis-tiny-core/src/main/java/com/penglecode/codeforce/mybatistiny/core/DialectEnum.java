@@ -1,5 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
+import com.penglecode.codeforce.mybatistiny.dialect.Dialect;
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql;
 import com.penglecode.codeforce.mybatistiny.support.RewriteSql.AdditionalParameter;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  * @author pengpeng
  * @version 1.0
  */
-public enum DatabaseDialectEnum implements DatabaseDialect {
+public enum DialectEnum implements Dialect {
 
     /**
      * 基于Oracle数据库的方言
@@ -95,7 +96,7 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
     /**
      * 额外的数据库方言
      */
-    private static final Map<String,DatabaseDialect> ADDITIONAL_DIALECTS = new HashMap<>();
+    private static final Map<String, Dialect> ADDITIONAL_DIALECTS = new HashMap<>();
 
     /**
      * 注册额外的数据库方言，方言扩展入口
@@ -103,7 +104,7 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
      * @param databaseId    - 数据库ID，例如mysql,oracle等，不区分大小写
      * @param dialect       - 方言实现
      */
-    public static void registerDialect(String databaseId, DatabaseDialect dialect) {
+    public static void registerDialect(String databaseId, Dialect dialect) {
         ADDITIONAL_DIALECTS.put(databaseId.toUpperCase(), dialect);
     }
 
@@ -113,10 +114,10 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
      * @param databaseId    - 数据库ID，例如mysql,oracle等，不区分大小写
      * @return
      */
-    public static DatabaseDialectEnum getDialect(String databaseId) {
-        DatabaseDialect dialect = ADDITIONAL_DIALECTS.get(databaseId.toUpperCase());
+    public static DialectEnum getDialect(String databaseId) {
+        Dialect dialect = ADDITIONAL_DIALECTS.get(databaseId.toUpperCase());
         if(dialect == null) {
-            for(DatabaseDialectEnum dbDialect : values()) {
+            for(DialectEnum dbDialect : values()) {
                 if(dbDialect.name().equalsIgnoreCase(databaseId)) {
                     return dbDialect;
                 }
@@ -132,7 +133,7 @@ public enum DatabaseDialectEnum implements DatabaseDialect {
      * @return
      */
     public static boolean hasRegisteredDialect(String databaseId) {
-        for(DatabaseDialectEnum dbDialect : values()) {
+        for(DialectEnum dbDialect : values()) {
             if(dbDialect.name().equalsIgnoreCase(databaseId)) {
                 return true;
             }
