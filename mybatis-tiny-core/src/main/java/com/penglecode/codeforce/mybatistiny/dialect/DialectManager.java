@@ -2,14 +2,12 @@ package com.penglecode.codeforce.mybatistiny.dialect;
 
 import org.springframework.util.Assert;
 
-import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
- * 数据库方言管理器，类似于{@link DriverManager}
+ * 数据库方言管理器，类似于java.sql.DriverManager
+ *
  *
  * @author pengpeng
  * @version 1.0
@@ -19,9 +17,41 @@ public final class DialectManager {
     /**
      * 已注册的数据库方言
      */
-    private static final Map<String, Dialect> REGISTERED_DIALECTS = new HashMap<>();
+    private static final Map<String,Dialect> REGISTERED_DIALECTS = new HashMap<>();
+
+    static {
+        initDialects();
+    }
 
     private DialectManager() {}
+
+    /**
+     * 初始化主流数据库方言
+     */
+    private static void initDialects() {
+        //MySQL系列
+        Dialect mysqlDialect = new MySQLDialect();
+        regDialect("mysql", mysqlDialect);
+        regDialect("mariadb", mysqlDialect);
+        //PG系列
+        Dialect pgDialect = new PostgreSQLDialect();
+        regDialect("h2", pgDialect);
+        regDialect("hsql", pgDialect);
+        regDialect("sqlite", pgDialect);
+        regDialect("postgresql", pgDialect);
+        //Oracle
+        Dialect oracleDialect = new OracleDialect();
+        regDialect("oracle", oracleDialect);
+        //DB2
+        Dialect db2Dialect = new DB2Dialect();
+        regDialect("db2", db2Dialect);
+        //SQLServer
+        Dialect sqlserverDialect = new SQLServerDialect();
+        regDialect("sqlserver", sqlserverDialect);
+        //ClickHouse
+        Dialect clickhouseDialect = new ClickHouseDialect();
+        regDialect("clickhouse", clickhouseDialect);
+    }
 
     /**
      * 注册额外的数据库方言，方言扩展入口
@@ -30,7 +60,7 @@ public final class DialectManager {
      * @param dialect       - 方言实现
      */
     public synchronized static void regDialect(String databaseId, Dialect dialect) {
-        REGISTERED_DIALECTS.put(databaseId.toUpperCase(), dialect);
+        REGISTERED_DIALECTS.put(databaseId.toLowerCase(), dialect);
     }
 
     /**
@@ -40,7 +70,7 @@ public final class DialectManager {
      * @return 返回数据库方言
      */
     public static Dialect getDialect(String databaseId) {
-        Dialect dialect = REGISTERED_DIALECTS.get(databaseId.toUpperCase());
+        Dialect dialect = REGISTERED_DIALECTS.get(databaseId.toLowerCase());
         Assert.notNull(dialect, String.format("No suitable DatabaseDialect found for databaseId(%s)!", databaseId));
         return dialect;
     }
@@ -52,7 +82,7 @@ public final class DialectManager {
      * @return 是否存在指定数据库的方言
      */
     public static boolean hasDialect(String databaseId) {
-        return REGISTERED_DIALECTS.containsKey(databaseId.toUpperCase());
+        return REGISTERED_DIALECTS.containsKey(databaseId.toLowerCase());
     }
 
 }

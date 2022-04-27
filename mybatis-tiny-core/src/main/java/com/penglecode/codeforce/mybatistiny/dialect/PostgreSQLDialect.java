@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL数据库方言
+ * PostgreSQL数据库方言
  *
  * @author pengpeng
  * @version 1.0
  */
-public class MySQLDialect implements Dialect {
+public class PostgreSQLDialect implements Dialect {
 
     @Override
     public RewriteSql getPageSql(String sql, int offset, int limit) {
@@ -20,9 +20,9 @@ public class MySQLDialect implements Dialect {
         String finalSql = sql;
         List<AdditionalParameter> additionalParameters = new ArrayList<>();
         if(upperSql.startsWith("SELECT")) {
-            finalSql = sql + " LIMIT " + SQL_PARAM_MARKER + ", " + SQL_PARAM_MARKER;
-            additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), offset, Integer.class));
-            additionalParameters.add(new AdditionalParameter(genAdditionalParamName(2), limit, Integer.class));
+            finalSql = sql + " LIMIT " + SQL_PARAM_MARKER + " OFFSET " + SQL_PARAM_MARKER;
+            additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
+            additionalParameters.add(new AdditionalParameter(genAdditionalParamName(2), offset, Integer.class));
         }
         return new RewriteSql(finalSql, additionalParameters);
     }
@@ -32,7 +32,7 @@ public class MySQLDialect implements Dialect {
         String upperSql = sql.toUpperCase();
         String finalSql = sql;
         List<AdditionalParameter> additionalParameters = new ArrayList<>();
-        if(upperSql.startsWith("SELECT") || upperSql.startsWith("UPDATE") || upperSql.startsWith("DELETE")) {
+        if(upperSql.startsWith("SELECT")) {
             finalSql = sql + " LIMIT " + SQL_PARAM_MARKER;
             additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
         }

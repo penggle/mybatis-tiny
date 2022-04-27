@@ -39,13 +39,13 @@ public class PageLimitInterceptor implements Interceptor {
 			Integer limit = MybatisTinyHelper.getQueryCriteria(boundSql).map(QueryCriteria::getLimit).orElse(null);
 			if(limit != null && limit > 0) {
 				RewriteSql rewriteSql = dialect.getLimitSql(boundSql.getSql(), limit);
-				rewriteSql.rewriteSql(configuration, boundSql); //重写SQL
+				rewriteSql.reboundSql(configuration, boundSql); //重写SQL
 			}
 		} else {
 			//反之，如果当前存在分页，则忽略QueryCriteria#limit(int)条件
 			//开始处理分页逻辑
 			RewriteSql rewriteSql = dialect.getPageSql(boundSql.getSql(), rowBounds.getOffset(), rowBounds.getLimit());
-			rewriteSql.rewriteSql(configuration, boundSql); //重写SQL
+			rewriteSql.reboundSql(configuration, boundSql); //重写SQL
 			//metaObject.setValue("delegate.rowBounds", RowBounds.DEFAULT); //不能重置rowBounds引用为DEFAULT(应该使用下面方式设置offset和limit)，否则会出现结果集为0的问题
 			statementHandlerMetaObject.setValue("delegate.rowBounds.offset", RowBounds.NO_ROW_OFFSET);
 			statementHandlerMetaObject.setValue("delegate.rowBounds.limit", RowBounds.NO_ROW_LIMIT);

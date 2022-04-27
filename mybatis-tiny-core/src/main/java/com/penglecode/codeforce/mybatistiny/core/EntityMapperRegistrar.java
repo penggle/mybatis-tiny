@@ -47,7 +47,7 @@ public class EntityMapperRegistrar {
 
     public EntityMapperRegistrar(DecoratedConfiguration configuration) {
         this.configuration = configuration;
-        this.entityMapperTemplateParameterFactory = createTemplateParameterFactory();
+        this.entityMapperTemplateParameterFactory = createTemplateParameterFactory(configuration);
         this.registerCommonTypeAlias();
         this.registerCommonPlugin();
         this.registerCommonMapper();
@@ -84,8 +84,8 @@ public class EntityMapperRegistrar {
         }
     }
 
-    protected EntityMapperTemplateParameterFactory createTemplateParameterFactory() {
-        return new EntityMapperTemplateParameterFactory(configuration.getDatabaseId());
+    protected EntityMapperTemplateParameterFactory createTemplateParameterFactory(DecoratedConfiguration configuration) {
+        return new EntityMapperTemplateParameterFactory(configuration);
     }
 
     /**

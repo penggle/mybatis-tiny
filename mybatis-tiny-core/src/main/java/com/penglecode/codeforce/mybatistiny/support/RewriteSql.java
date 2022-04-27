@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 重写SQL语句
+ * 重写的SQL语句
  *
  * @author pengpeng
  * @version 1.0
@@ -19,12 +19,12 @@ import java.util.Map;
 public class RewriteSql {
 
     /**
-     * 重写后的SQL
+     * 重写的SQL
      */
     private final String sql;
 
     /**
-     * 重写后新增的额外参数
+     * 重写SQL后新增的额外参数
      */
     private final List<AdditionalParameter> additionalParameters;
 
@@ -42,13 +42,13 @@ public class RewriteSql {
     }
 
     /**
-     * 重写原始SQL
+     * 重新绑定SQL
      *
      * @param configuration     - Mybatis的全局Configuration
      * @param boundSql          - 原始SQL
      */
     @SuppressWarnings("unchecked")
-    public void rewriteSql(Configuration configuration, BoundSql boundSql) {
+    public void reboundSql(Configuration configuration, BoundSql boundSql) {
         MetaObject boundSqlMetaObject = SystemMetaObject.forObject(boundSql);
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         Map<String, Object> additionalParameters = (Map<String, Object>) boundSqlMetaObject.getValue("additionalParameters");
@@ -61,49 +61,6 @@ public class RewriteSql {
             additionalParameters.put(additionalParameter.getParamName(), additionalParameter.getParamValue());
         }
         boundSqlMetaObject.setValue("sql", getSql());
-    }
-
-    public static class AdditionalParameter {
-
-        /** 添加在BoundSql.parameterMappings的头部? */
-        private final boolean addFirst;
-
-        /** 参数名称 */
-        private final String paramName;
-
-        /** 参数类型 */
-        private final Object paramValue;
-
-        /** 参数类型 */
-        private final Class<?> paramType;
-
-        public AdditionalParameter(String paramName, Object paramValue, Class<?> paramType) {
-            this(false, paramName, paramValue, paramType);
-        }
-
-        public AdditionalParameter(boolean addFirst, String paramName, Object paramValue, Class<?> paramType) {
-            this.addFirst = addFirst;
-            this.paramName = paramName;
-            this.paramValue = paramValue;
-            this.paramType = paramType;
-        }
-
-        public boolean isAddFirst() {
-            return addFirst;
-        }
-
-        public String getParamName() {
-            return paramName;
-        }
-
-        public Object getParamValue() {
-            return paramValue;
-        }
-
-        public Class<?> getParamType() {
-            return paramType;
-        }
-
     }
 
 }

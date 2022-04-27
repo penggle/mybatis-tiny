@@ -2,6 +2,7 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <settings>
+        <setting name="databaseId" value="MySQL"/>
         <setting name="logImpl" value="SLF4J"/>
         <setting name="defaultFetchSize" value="10000"/>
         <setting name="lazyLoadingEnabled" value="true"/>

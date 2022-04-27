@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL数据库方言
+ * ClickHouse数据库方言
  *
  * @author pengpeng
  * @version 1.0
  */
-public class MySQLDialect implements Dialect {
+public class ClickHouseDialect implements Dialect {
 
     @Override
     public RewriteSql getPageSql(String sql, int offset, int limit) {
@@ -32,7 +32,7 @@ public class MySQLDialect implements Dialect {
         String upperSql = sql.toUpperCase();
         String finalSql = sql;
         List<AdditionalParameter> additionalParameters = new ArrayList<>();
-        if(upperSql.startsWith("SELECT") || upperSql.startsWith("UPDATE") || upperSql.startsWith("DELETE")) {
+        if(upperSql.startsWith("SELECT")) {
             finalSql = sql + " LIMIT " + SQL_PARAM_MARKER;
             additionalParameters.add(new AdditionalParameter(genAdditionalParamName(1), limit, Integer.class));
         }
