@@ -94,6 +94,7 @@ public class EntityMapperRegistrar {
      * @param entityMapperClass
      */
     public String registerEntityMapper(Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass) {
+        Assert.isTrue(entityMapperClass.isInterface(), String.format("Parameter 'entityMapperClass'(%s) must be an interface!", entityMapperClass));
         //创建实体元数据
         EntityMeta<? extends EntityObject> entityMeta = createEntityMeta(entityMapperClass);
         //为动态生成的实体XxxMapper.xml创建所需的模板参数
@@ -116,6 +117,8 @@ public class EntityMapperRegistrar {
         }
         return xmlMapperLocation;
     }
+
+
 
     /**
      * 创建实体元数据

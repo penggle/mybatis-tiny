@@ -64,8 +64,8 @@
     <#else>
     <update id="updateById" parameterType="java.util.Map" statementType="PREPARED">
         UPDATE ${tableName}
-        SET <include refid="UpdateDynamicColumnsClause"/>
-        WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+           SET <include refid="UpdateDynamicColumnsClause"/>
+         WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </update>
     </#if>
 
@@ -79,7 +79,7 @@
     <#else>
     <update id="updateByCriteria" parameterType="java.util.Map" statementType="PREPARED">
         UPDATE ${tableName}
-        SET <include refid="UpdateDynamicColumnsClause"/>
+           SET <include refid="UpdateDynamicColumnsClause"/>
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </update>
     </#if>
@@ -93,7 +93,7 @@
     <#else>
     <delete id="deleteById" parameterType="java.util.Map" statementType="PREPARED">
         DELETE FROM ${tableName}
-        WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+         WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </delete>
     </#if>
 
@@ -115,13 +115,13 @@
     <delete id="deleteByIds" parameterType="java.util.Map" statementType="PREPARED">
         <#if (idColumns?size == 1)>
             DELETE FROM ${tableName}
-            WHERE ${idColumns[0].columnName} in
+             WHERE ${idColumns[0].columnName} in
             <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
                 <#noparse>#{</#noparse>id, jdbcType=${idColumns[0].jdbcTypeName}<#noparse>}</#noparse>
             </foreach>
         <#else>
             DELETE FROM ${tableName}
-            WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
+             WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
         </#if>
     </delete>
     </#if>
