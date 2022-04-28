@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penglecode.codeforce.mybatistiny.examples.dal.mapper.ProductBaseInfoMapper">
+
+    <!-- Auto-Generation Code Start -->
+    <!--
+        每个继承BaseEntityMapper的Mybatis-Mapper接口都会自动生成对应的如下XML-Mapper
+    -->
+
+    <resultMap id="SelectBaseResultMap" type="com.penglecode.codeforce.mybatistiny.examples.domain.model.ProductBaseInfo">
+        <id column="productId" jdbcType="BIGINT" property="productId"/>
+        <result column="productName" jdbcType="VARCHAR" property="productName"/>
+        <result column="productUrl" jdbcType="VARCHAR" property="productUrl"/>
+        <result column="productTags" jdbcType="VARCHAR" property="productTags"/>
+        <result column="productType" jdbcType="INTEGER" property="productType"/>
+        <result column="auditStatus" jdbcType="INTEGER" property="auditStatus"/>
+        <result column="onlineStatus" jdbcType="INTEGER" property="onlineStatus"/>
+        <result column="shopId" jdbcType="BIGINT" property="shopId"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="createTime" jdbcType="VARCHAR" property="createTime"/>
+        <result column="updateTime" jdbcType="VARCHAR" property="updateTime"/>
+    </resultMap>
+
+    <sql id="SelectBaseColumnsClause">
+        <trim suffixOverrides=",">
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productId')">
+                product_id  AS  productId,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productName')">
+                product_name  AS  productName,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productUrl')">
+                product_url  AS  productUrl,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productTags')">
+                product_tags  AS  productTags,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productType')">
+                product_type  AS  productType,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'auditStatus')">
+                audit_status  AS  auditStatus,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'onlineStatus')">
+                online_status  AS  onlineStatus,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'shopId')">
+                shop_id  AS  shopId,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'remark')">
+                remark  AS  remark,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'createTime')">
+                DATE_FORMAT(create_time, '%Y-%m-%d %T')  AS  createTime,
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'updateTime')">
+                DATE_FORMAT(update_time, '%Y-%m-%d %T')  AS  updateTime,
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="UpdateDynamicColumnsClause">
+        <trim suffixOverrides=",">
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productName')">
+                product_name = #{columns.productName, jdbcType=VARCHAR},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productUrl')">
+                product_url = #{columns.productUrl, jdbcType=VARCHAR},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productTags')">
+                product_tags = #{columns.productTags, jdbcType=VARCHAR},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'productType')">
+                product_type = #{columns.productType, jdbcType=INTEGER},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'auditStatus')">
+                audit_status = #{columns.auditStatus, jdbcType=INTEGER},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'onlineStatus')">
+                online_status = #{columns.onlineStatus, jdbcType=INTEGER},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'remark')">
+                remark = #{columns.remark, jdbcType=VARCHAR},
+            </if>
+            <if test="@com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper@containsColumn(columns, 'updateTime')">
+                update_time = #{columns.updateTime, jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </sql>
+
+    <insert id="insert" keyProperty="productId" parameterType="ProductBaseInfo" statementType="PREPARED" useGeneratedKeys="true">
+        INSERT INTO t_product_base_info(
+            product_id,
+            product_name,
+            product_url,
+            product_tags,
+            product_type,
+            audit_status,
+            online_status,
+            shop_id,
+            remark,
+            create_time,
+            update_time
+        ) VALUES (
+                     #{productId, jdbcType=BIGINT},
+                     #{productName, jdbcType=VARCHAR},
+                     #{productUrl, jdbcType=VARCHAR},
+                     #{productTags, jdbcType=VARCHAR},
+                     #{productType, jdbcType=INTEGER},
+                     #{auditStatus, jdbcType=INTEGER},
+                     #{onlineStatus, jdbcType=INTEGER},
+                     #{shopId, jdbcType=BIGINT},
+                     #{remark, jdbcType=VARCHAR},
+                     #{createTime, jdbcType=VARCHAR},
+                     #{updateTime, jdbcType=VARCHAR}
+                 )
+    </insert>
+
+    <update id="updateById" parameterType="java.util.Map" statementType="PREPARED">
+        UPDATE t_product_base_info
+        SET <include refid="UpdateDynamicColumnsClause"/>
+        WHERE product_id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByCriteria" parameterType="java.util.Map" statementType="PREPARED">
+        UPDATE t_product_base_info
+        SET <include refid="UpdateDynamicColumnsClause"/>
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </update>
+
+    <delete id="deleteById" parameterType="java.util.Map" statementType="PREPARED">
+        DELETE FROM t_product_base_info
+        WHERE product_id = #{id, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByIds" parameterType="java.util.Map" statementType="PREPARED">
+        DELETE FROM t_product_base_info
+        WHERE product_id in
+        <foreach close=")" collection="ids" index="index" item="id" open="(" separator=",">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByCriteria" parameterType="java.util.Map" statementType="PREPARED">
+        DELETE FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </delete>
+
+    <select id="selectById" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+        WHERE product_id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </select>
+
+    <select id="selectCountByCriteria" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
+        SELECT COUNT(*)
+        FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </select>
+
+    <select id="selectListByIds" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+        WHERE product_id in
+        <foreach close=")" collection="ids" index="index" item="id" open="(" separator=",">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="selectAllList" parameterType="java.util.Map" resultMap="SelectBaseResultMap" resultSetType="FORWARD_ONLY" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+    </select>
+
+    <select id="selectAllCount" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
+        SELECT COUNT(*) FROM t_product_base_info
+    </select>
+
+    <select id="selectListByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+        <include refid="CommonMybatisMapper.CommonOrderByCriteriaClause"/>
+    </select>
+
+    <select id="selectPageListByCriteria" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
+        SELECT <include refid="SelectBaseColumnsClause"/>
+        FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+        <include refid="CommonMybatisMapper.CommonOrderByCriteriaClause"/>
+    </select>
+
+    <select id="selectPageCountByCriteria" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="PREPARED">
+        SELECT COUNT(*)
+        FROM t_product_base_info
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </select>
+    <!-- Auto-Generation Code End -->
+
+</mapper>
