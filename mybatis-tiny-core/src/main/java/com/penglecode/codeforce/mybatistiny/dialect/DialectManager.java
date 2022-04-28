@@ -31,26 +31,26 @@ public final class DialectManager {
     private static void initDialects() {
         //MySQL系列
         Dialect mysqlDialect = new MySQLDialect();
-        regDialect("mysql", mysqlDialect);
-        regDialect("mariadb", mysqlDialect);
+        regDialect(SupportedDatabase.MYSQL.getDatabaseId(), mysqlDialect);
+        regDialect(SupportedDatabase.MARIADB.getDatabaseId(), mysqlDialect);
         //PG系列
         Dialect pgDialect = new PostgreSQLDialect();
-        regDialect("h2", pgDialect);
-        regDialect("hsql", pgDialect);
-        regDialect("sqlite", pgDialect);
-        regDialect("postgresql", pgDialect);
+        regDialect(SupportedDatabase.H2.getDatabaseId(), pgDialect);
+        regDialect(SupportedDatabase.HSQL.getDatabaseId(), pgDialect);
+        regDialect(SupportedDatabase.SQLITE.getDatabaseId(), pgDialect);
+        regDialect(SupportedDatabase.POSTGRESQL.getDatabaseId(), pgDialect);
         //Oracle
         Dialect oracleDialect = new OracleDialect();
-        regDialect("oracle", oracleDialect);
+        regDialect(SupportedDatabase.ORACLE.getDatabaseId(), oracleDialect);
         //DB2
         Dialect db2Dialect = new DB2Dialect();
-        regDialect("db2", db2Dialect);
+        regDialect(SupportedDatabase.DB2.getDatabaseId(), db2Dialect);
         //SQLServer
         Dialect sqlserverDialect = new SQLServerDialect();
-        regDialect("sqlserver", sqlserverDialect);
+        regDialect(SupportedDatabase.SQLSERVER.getDatabaseId(), sqlserverDialect);
         //ClickHouse
         Dialect clickhouseDialect = new ClickHouseDialect();
-        regDialect("clickhouse", clickhouseDialect);
+        regDialect(SupportedDatabase.CLICKHOUSE.getDatabaseId(), clickhouseDialect);
     }
 
     /**

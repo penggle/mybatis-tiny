@@ -96,14 +96,14 @@ public class DecoratedConfiguration extends Configuration {
         } else {
             databaseId = getDatabaseIdByProvider();
             if(StringUtils.isBlank(databaseId)) {
-                databaseId = getDatabaseIdByUrl();
+                databaseId = getDatabaseIdByJdbcUrl();
             }
             Assert.isTrue(DialectManager.hasDialect(databaseId), String.format("Unsupported databaseId(%s), No suitable DatabaseDialect found!", databaseId));
             delegate.setDatabaseId(databaseId);
         }
     }
 
-    private String getDatabaseIdByUrl() {
+    private String getDatabaseIdByJdbcUrl() {
         try {
             try (Connection connection = delegate.getEnvironment().getDataSource().getConnection()) {
                 return JdbcUtils.getDbType(connection.getMetaData().getURL());

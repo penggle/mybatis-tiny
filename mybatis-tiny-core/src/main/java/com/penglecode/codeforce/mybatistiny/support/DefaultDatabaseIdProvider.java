@@ -1,5 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.support;
 
+import com.penglecode.codeforce.mybatistiny.dialect.SupportedDatabase;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,16 +26,9 @@ public class DefaultDatabaseIdProvider implements DatabaseIdProvider {
 
     public DefaultDatabaseIdProvider() {
         Properties properties = new Properties();
-        properties.put("MySQL", "mysql");
-        properties.put("MariaDB", "mariadb");
-        properties.put("Oracle", "oracle");
-        properties.put("DB2", "db2");
-        properties.put("SQL Server", "sqlserver");
-        properties.put("PostgreSQL", "postgresql");
-        properties.put("H2", "h2");
-        properties.put("HSQL", "hsql");
-        properties.put("Sqlite", "sqlite");
-        properties.put("ClickHouse", "clickhouse");
+        for(SupportedDatabase database : SupportedDatabase.values()) {
+            properties.put(database.getProductName(), database.getDatabaseId());
+        }
         setProperties(properties);
     }
 

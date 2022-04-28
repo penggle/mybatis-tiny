@@ -60,16 +60,42 @@
          WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </update>
 
+    <#if databaseId == "clickhouse">
+    <!-- 特殊处理ClickHouse的update语句 -->
+    <update id="updateById" parameterType="java.util.Map" statementType="PREPARED" databaseId="clickhouse">
+        ALTER TABLE ${tableName}
+        UPDATE <include refid="UpdateDynamicColumnsClause"/>
+        WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+    </update>
+    </#if>
+
     <update id="updateByCriteria" parameterType="java.util.Map" statementType="PREPARED">
         UPDATE ${tableName}
            SET <include refid="UpdateDynamicColumnsClause"/>
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </update>
 
+    <#if databaseId == "clickhouse">
+    <!-- 特殊处理ClickHouse的update语句 -->
+    <update id="updateByCriteria" parameterType="java.util.Map" statementType="PREPARED" databaseId="clickhouse">
+        ALTER TABLE ${tableName}
+        UPDATE <include refid="UpdateDynamicColumnsClause"/>
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </update>
+    </#if>
+
     <delete id="deleteById" parameterType="java.util.Map" statementType="PREPARED">
         DELETE FROM ${tableName}
          WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
     </delete>
+
+    <#if databaseId == "clickhouse">
+    <!-- 特殊处理ClickHouse的delete语句 -->
+    <delete id="deleteById" parameterType="java.util.Map" statementType="PREPARED" databaseId="clickhouse">
+        ALTER TABLE ${tableName} DELETE
+        WHERE <#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse><#if (idColumns?size == 1)>id<#else>id.${column.fieldName}</#if>, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>
+    </delete>
+    </#if>
 
     <delete id="deleteByIds" parameterType="java.util.Map" statementType="PREPARED">
     <#if (idColumns?size == 1)>
@@ -84,10 +110,34 @@
     </#if>
     </delete>
 
+    <#if databaseId == "clickhouse">
+    <!-- 特殊处理ClickHouse的delete语句 -->
+    <delete id="deleteByIds" parameterType="java.util.Map" statementType="PREPARED" databaseId="clickhouse">
+        <#if (idColumns?size == 1)>
+            ALTER TABLE ${tableName} DELETE
+            WHERE ${idColumns[0].columnName} in
+            <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+                <#noparse>#{</#noparse>id, jdbcType=${idColumns[0].jdbcTypeName}<#noparse>}</#noparse>
+            </foreach>
+        <#else>
+            ALTER TABLE ${tableName} DELETE
+            WHERE <foreach collection="ids" index="index" item="id" open="" separator=" OR " close="">(<#list idColumns as column>${column.columnName} = <#noparse>#{</#noparse>id.${column.fieldName}, jdbcType=${column.jdbcTypeName}<#noparse>}</#noparse><#if column_has_next> AND </#if></#list>)</foreach>
+        </#if>
+    </delete>
+    </#if>
+
     <delete id="deleteByCriteria" parameterType="java.util.Map" statementType="PREPARED">
         DELETE FROM ${tableName}
         <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
     </delete>
+
+    <#if databaseId == "clickhouse">
+    <!-- 特殊处理ClickHouse的delete语句 -->
+    <delete id="deleteByCriteria" parameterType="java.util.Map" statementType="PREPARED" databaseId="clickhouse">
+        ALTER TABLE ${tableName} DELETE
+        <include refid="CommonMybatisMapper.CommonWhereCriteriaClause"/>
+    </delete>
+    </#if>
 
     <select id="selectById" parameterType="java.util.Map" resultMap="SelectBaseResultMap" statementType="PREPARED">
         SELECT <include refid="SelectBaseColumnsClause"/>

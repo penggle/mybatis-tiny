@@ -29,6 +29,9 @@ public class EntityMapperTemplateParameter {
     /** MapperHelper类全名 */
     private String mapperHelperClass;
 
+    /** 当前数据库ID */
+    private String databaseId;
+
     /** 表名 */
     private String tableName;
 
@@ -89,6 +92,14 @@ public class EntityMapperTemplateParameter {
 
     public void setMapperHelperClass(String mapperHelperClass) {
         this.mapperHelperClass = mapperHelperClass;
+    }
+
+    public String getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(String databaseId) {
+        this.databaseId = databaseId;
     }
 
     public String getTableName() {

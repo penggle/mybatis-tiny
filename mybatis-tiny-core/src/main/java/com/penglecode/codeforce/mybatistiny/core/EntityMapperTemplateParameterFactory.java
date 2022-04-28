@@ -7,8 +7,6 @@ import com.penglecode.codeforce.mybatistiny.annotations.Id;
 import com.penglecode.codeforce.mybatistiny.annotations.Table;
 import com.penglecode.codeforce.mybatistiny.core.EntityMapperTemplateParameter.ColumnParameter;
 import com.penglecode.codeforce.mybatistiny.core.EntityMeta.EntityField;
-import com.penglecode.codeforce.mybatistiny.dialect.Dialect;
-import com.penglecode.codeforce.mybatistiny.dialect.DialectManager;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
 import com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper;
 import org.springframework.util.Assert;
@@ -46,6 +44,7 @@ public class EntityMapperTemplateParameterFactory {
     protected EntityMapperTemplateParameter setTemplateCommonParameter(EntityMapperTemplateParameter parameter) {
         parameter.setMapperNamespace(parameter.getEntityMapperClass().getName());
         parameter.setMapperHelperClass(XmlMapperHelper.class.getName());
+        parameter.setDatabaseId(configuration.getDatabaseId());
         parameter.setEntityName(parameter.getEntityMeta().getEntityClass().getSimpleName());
         parameter.setEntityClass(parameter.getEntityMeta().getEntityClass().getName());
 
