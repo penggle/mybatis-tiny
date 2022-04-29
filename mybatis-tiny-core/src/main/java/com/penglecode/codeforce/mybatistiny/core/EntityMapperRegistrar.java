@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * @author pengpeng
  * @version 1.0
  */
-@SuppressWarnings({"unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EntityMapperRegistrar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityMapperRegistrar.class);
@@ -124,8 +124,7 @@ public class EntityMapperRegistrar {
      * @return
      */
     protected String determineEntityXmlMapper(Class<BaseEntityMapper<?>> entityMapperClass, String entityXmlMapperLocation, EntityMapperTemplateParameter templateParameter) {
-        Class<BaseEntityMapper<?>> baseEntityMapperClass = (Class<BaseEntityMapper<?>>) ClassUtils.resolveClassName(BaseEntityMapper.class.getName(), ClassUtils.getDefaultClassLoader());
-        String entityXmlMapperContent = processBaseMapperTemplate(baseEntityMapperClass, templateParameter);
+        String entityXmlMapperContent = processBaseMapperTemplate(castBaseEntityMapperClass(BaseEntityMapper.class), templateParameter);
         //处理继承BaseEntityMapper扩展公共方法的情况开始
         Map<Class<BaseEntityMapper<?>>,Set<Method>> customBaseEntityMappers = getCustomBaseEntityMappers(entityMapperClass);
         if(!CollectionUtils.isEmpty(customBaseEntityMappers)) { //是否存在这种扩展?
@@ -250,6 +249,10 @@ public class EntityMapperRegistrar {
         } finally {
             ErrorContext.instance().reset();
         }
+    }
+
+    protected Class<BaseEntityMapper<?>> castBaseEntityMapperClass(Class<BaseEntityMapper> baseEntityMapperClass) {
+        return (Class<BaseEntityMapper<?>>) ClassUtils.resolveClassName(baseEntityMapperClass.getName(), ClassUtils.getDefaultClassLoader());
     }
 
     protected DecoratedConfiguration getConfiguration() {
