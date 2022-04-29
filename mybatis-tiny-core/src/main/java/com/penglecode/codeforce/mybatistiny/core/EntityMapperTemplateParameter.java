@@ -1,6 +1,5 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
-import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.mybatistiny.core.EntityMeta.EntityField;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
 import com.penglecode.codeforce.mybatistiny.support.MybatisTinyHelper;
@@ -18,10 +17,10 @@ import java.util.List;
 public class EntityMapperTemplateParameter {
 
     /** 实体对象的Mybatis-Mapper接口类型 */
-    private Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass;
+    private Class<BaseEntityMapper<?>> entityMapperClass;
 
     /** 实体元数据 */
-    private EntityMeta<? extends EntityObject> entityMeta;
+    private EntityMeta entityMeta;
 
     /** 实体XML-Mapper的namespace */
     private String mapperNamespace;
@@ -62,19 +61,19 @@ public class EntityMapperTemplateParameter {
     /** 全部列 */
     private List<ColumnParameter> allColumns;
 
-    public Class<BaseEntityMapper<? extends EntityObject>> getEntityMapperClass() {
+    public Class<BaseEntityMapper<?>> getEntityMapperClass() {
         return entityMapperClass;
     }
 
-    public void setEntityMapperClass(Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass) {
+    public void setEntityMapperClass(Class<BaseEntityMapper<?>> entityMapperClass) {
         this.entityMapperClass = entityMapperClass;
     }
 
-    public EntityMeta<? extends EntityObject> getEntityMeta() {
+    public EntityMeta getEntityMeta() {
         return entityMeta;
     }
 
-    public void setEntityMeta(EntityMeta<? extends EntityObject> entityMeta) {
+    public void setEntityMeta(EntityMeta entityMeta) {
         this.entityMeta = entityMeta;
     }
 

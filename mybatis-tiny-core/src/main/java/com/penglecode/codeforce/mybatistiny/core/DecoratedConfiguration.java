@@ -1,6 +1,5 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
-import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.common.util.JdbcUtils;
 import com.penglecode.codeforce.common.util.ReflectionUtils;
 import com.penglecode.codeforce.common.util.StringUtils;
@@ -66,7 +65,7 @@ public class DecoratedConfiguration extends Configuration {
     /**
      * 当前Configuration上下文下的所有实体元数据信息
      */
-    private final Map<Class<? extends EntityObject>, EntityMeta<? extends EntityObject>> allEntityMetas = new HashMap<>();
+    private final Map<Class<?>, EntityMeta> allEntityMetas = new HashMap<>();
 
     /**
      * 实体对象的XML-Mapper注册器
@@ -76,7 +75,7 @@ public class DecoratedConfiguration extends Configuration {
     /**
      * 实体对象的XML-Mapper注册信息
      */
-    private final ConcurrentMap<Class<BaseEntityMapper<? extends EntityObject>>,String> entityMapperRegistries;
+    private final ConcurrentMap<Class<BaseEntityMapper<?>>,String> entityMapperRegistries;
 
     public DecoratedConfiguration(Configuration delegate) {
         this.delegate = delegate;
@@ -755,7 +754,7 @@ public class DecoratedConfiguration extends Configuration {
     public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
         T mapperInstance = delegate.getMapper(type, sqlSession);
         if(mapperInstance instanceof BaseEntityMapper) { //如果生成的Mapper实例是mybatis-tiny框架下的BaseEntityMapper
-            Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass = (Class<BaseEntityMapper<? extends EntityObject>>) type;
+            Class<BaseEntityMapper<?>> entityMapperClass = (Class<BaseEntityMapper<?>>) type;
             entityMapperRegistries.computeIfAbsent(entityMapperClass, entityMapperRegistrar::registerEntityMapper); //进行首次注册
         }
         return mapperInstance;
@@ -781,15 +780,15 @@ public class DecoratedConfiguration extends Configuration {
         delegate.addCacheRef(namespace, referencedNamespace);
     }
 
-    public <E extends EntityObject> EntityMeta<E> getEntityMeta(Class<E> entityType) {
-        return (EntityMeta<E>) allEntityMetas.get(entityType);
+    public EntityMeta getEntityMeta(Class<?> entityType) {
+        return allEntityMetas.get(entityType);
     }
 
-    public <E extends EntityObject> void setEntityMeta(Class<E> entityType, EntityMeta<E> entityMeta) {
+    public void setEntityMeta(Class<?> entityType, EntityMeta entityMeta) {
         allEntityMetas.put(entityType, entityMeta);
     }
 
-    protected Map<Class<? extends EntityObject>, EntityMeta<? extends EntityObject>> getAllEntityMetas() {
+    protected Map<Class<?>, EntityMeta> getAllEntityMetas() {
         return allEntityMetas;
     }
 
@@ -801,7 +800,7 @@ public class DecoratedConfiguration extends Configuration {
         return entityMapperRegistrar;
     }
 
-    protected ConcurrentMap<Class<BaseEntityMapper<? extends EntityObject>>, String> getEntityMapperRegistries() {
+    protected ConcurrentMap<Class<BaseEntityMapper<?>>, String> getEntityMapperRegistries() {
         return entityMapperRegistries;
     }
 

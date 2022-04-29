@@ -1,6 +1,5 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
-import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.common.util.CollectionUtils;
 import com.penglecode.codeforce.common.util.StringUtils;
 import com.penglecode.codeforce.mybatistiny.annotations.*;
@@ -23,10 +22,10 @@ import java.util.stream.Collectors;
  * @author pengpeng
  * @version 1.0
  */
-public class EntityMeta<E extends EntityObject> {
+public class EntityMeta {
 
     /** 实体类Class */
-    private final Class<E> entityClass;
+    private final Class<?> entityClass;
 
     /** 主键ID列 */
     private final Set<EntityField> idFields;
@@ -40,7 +39,7 @@ public class EntityMeta<E extends EntityObject> {
     /** 实体类上的@Table注解 */
     private final Table tableAnnotation;
 
-    protected EntityMeta(Class<E> entityClass) {
+    protected EntityMeta(Class<?> entityClass) {
         Table tableAnnotation = entityClass.getAnnotation(Table.class);
         Assert.state(tableAnnotation != null, String.format("EntityObject[%s] must be annotated with @%s", entityClass.getName(), Table.class.getName()));
         Assert.state(StringUtils.isNotBlank(tableAnnotation.value()), String.format("EntityObject[%s] table name can not be empty!", entityClass.getName()));
@@ -59,7 +58,7 @@ public class EntityMeta<E extends EntityObject> {
         this.tableAnnotation = tableAnnotation;
     }
 
-    protected Map<String,EntityField> resolveEntityFields(Class<E> entityClass, Function<EntityField,String> keyFunction) {
+    protected Map<String,EntityField> resolveEntityFields(Class<?> entityClass, Function<EntityField,String> keyFunction) {
         List<Field> entityFields = new ArrayList<>();
         ReflectionUtils.doWithFields(entityClass, entityFields::add, this::isEntityField);
         return entityFields.stream().map(EntityField::new).collect(Collectors.toMap(keyFunction, Function.identity(), (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, LinkedHashMap::new));
@@ -72,7 +71,7 @@ public class EntityMeta<E extends EntityObject> {
         return false;
     }
 
-    public Class<E> getEntityClass() {
+    public Class<?> getEntityClass() {
         return entityClass;
     }
 

@@ -1,6 +1,5 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
-import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.mybatistiny.annotations.Column;
 import com.penglecode.codeforce.mybatistiny.annotations.GenerationType;
 import com.penglecode.codeforce.mybatistiny.annotations.Id;
@@ -30,7 +29,7 @@ public class EntityMapperTemplateParameterFactory {
         this.configuration = configuration;
     }
 
-    public EntityMapperTemplateParameter createTemplateParameter(Class<BaseEntityMapper<? extends EntityObject>> entityMapperClass, EntityMeta<? extends EntityObject> entityMeta) {
+    public EntityMapperTemplateParameter createTemplateParameter(Class<BaseEntityMapper<?>> entityMapperClass, EntityMeta entityMeta) {
         EntityMapperTemplateParameter parameter = newTemplateParameter();
         parameter.setEntityMapperClass(entityMapperClass);
         parameter.setEntityMeta(entityMeta);

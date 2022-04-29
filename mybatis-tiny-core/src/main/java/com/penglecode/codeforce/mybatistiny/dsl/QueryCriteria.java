@@ -37,7 +37,7 @@ public abstract class QueryCriteria<E extends EntityObject> {
     /**
      * 查询条件绑定的实体元数据
      */
-    private final EntityMeta<E> entityMeta;
+    private final EntityMeta entityMeta;
 
     /**
      * 查询条件绑定的example，它是一个对应数据库表的实体数据模型
