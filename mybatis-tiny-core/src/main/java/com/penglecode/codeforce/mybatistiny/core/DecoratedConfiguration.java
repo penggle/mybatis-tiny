@@ -93,9 +93,9 @@ public class DecoratedConfiguration extends Configuration {
         if(StringUtils.isNotBlank(databaseId)) { //如果应用程序设置了databaseId，则需要检查其对应的方言在DatabaseDialectEnum中是否注册
             Assert.isTrue(DialectManager.hasDialect(databaseId), String.format("Unsupported databaseId(%s) in your Mybatis Configuration!", databaseId));
         } else {
-            databaseId = getDatabaseIdByProvider();
+            databaseId = getDatabaseIdByJdbcUrl();
             if(StringUtils.isBlank(databaseId)) {
-                databaseId = getDatabaseIdByJdbcUrl();
+                databaseId = getDatabaseIdByProvider();
             }
             Assert.isTrue(DialectManager.hasDialect(databaseId), String.format("Unsupported databaseId(%s), No suitable DatabaseDialect found!", databaseId));
             delegate.setDatabaseId(databaseId);

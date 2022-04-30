@@ -137,7 +137,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
                   .eq(ProductBaseInfo::getOnlineStatus)
                   .in(ProductBaseInfo::getAuditStatus, queryRequest.getAuditStatuses().toArray())
                   .orderBy(page.getOrderBys())
-                  .dynamic(true); //自动过滤掉为空值(null|空串|空数组|空集合)的查询参数
+                  .dynamic(true); //自动过滤掉为空值(null|空串|空数组|空集合)的查询参数(条件)
   List<ProductBaseInfo> productBases2 = productBaseInfoMapper.selectPageListByCriteria(queryCriteria4, new RowBounds(page.offset(), page.limit()));
   //设置总记录数
   page.setTotalRowCount(productBaseInfoMapper.selectPageCountByCriteria(queryCriteria4));
@@ -165,15 +165,37 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
 
 
-
-
 ## 特性及限制
 
 - 支持单一主键或联合主键，单一主键时主键策略支持：IDENTITY(数据库自增的)，SEQUENCE(基于序列的)，NONE(无，客户端自己设置主键)
 
   > 重复造轮子的初衷也是被Mybatis-Plus只能使用单一主键给恶心到了
 
-- Entity实体类是基于注解的（注解类的设计基本与JPA的注解规范一致）；实体类实现`EntityObject`接口并实现数据出站处理方法来实现decode能力，例如：
+- 到目前为止，没有任何可配置的配置项。Mybatis-Tiny的数据库方言配置与Mybatis本身的方言配置一致，即通过databaseId来实现方言。也就是说Mybatis-Tiny的方言数据库类型取自Configuration.databaseId字段，如果应用程序未设置(通过DatabaseIdProvider来设置)，则Mybatis-Tiny会自动设置。
+
+  目前Mybatis-Tiny支持主流的数据库：`mysql，mariadb，oracle，db2，sqlserver，postgresql，h2，hsql，sqlite，clickhouse`
+
+  对于非主流数据库，例如"人大金仓数据库(`kingbasees`)"，它属于`Postgresql`系列的，那么采用别名的方式，使用PostgresqlDialect作为其方言，即这样配置：
+
+  ```java
+  //方式1：mybatis-config.xml
+      <databaseIdProvider type="DB_VENDOR">
+          <property name="KingBase" value="postgresql" />
+      </databaseIdProvider>
+  
+  //方式2：Spring环境下
+  @Bean
+  public DatabaseIdProvider databaseIdProvider() {
+      VendorDatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider()
+      Properties properties = new Properties();
+      properties.put("KingBase", "postgresql");
+      return databaseIdProvider;
+  }
+  ```
+
+  
+
+- Entity实体类是基于注解的（注解类的设计基本与JPA的注解规范一致）；实体类必须实现`EntityObject`接口，例如：
 
   ```java
   @Table("t_product_base_info")
@@ -231,14 +253,24 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
       
       //getter/setter...
       
+      /**
+       * 实现该方法是可选的!
+       * 
+       * 返回领域实体的主键值，当存在联合主键时，在CRUD时特别有用
+       * 联合主键(com.penglecode.codeforce.common.domain.ID)
+       */
       @Override
       public Long identity() {
           return productId;
       }
   
       /**
+       * 实现该方法是可选的!
+       *
        * 这个方法在所有SELECT操作返回结果集前都会由Mybatis
        * 插件DomainObjectQueryInterceptor自动执行
+       * 
+       * 通过实现该方法来实现诸如枚举decode能力
        */
       @Override
       public ProductBaseInfo processOutbound() {
@@ -304,7 +336,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
 - 在Xxx实体对象的XxxMapper中自定义方法肯定是可以的：
 
-  见`ProductBaseInfoMapper.xml`
+  见[ProductBaseInfoMapper.xml](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/dal/mapper/ProductBaseInfoMapper.xml)
 
 - WHERE条件逻辑嵌套查询仅支持嵌套一层（在单表操作中仅支持一层嵌套已经能满足绝大多数要求了），例如：
 
@@ -328,15 +360,51 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   - <==      Total: 10
   ```
 
-- 扩展了Mybatis的`org.apache.ibatis.executor.Executor`，叫`DynamicExecutor`，用于解决在使用mybatis-spring框架时在同一个事务中不能切换ExecutorType的蛋疼问题（如果你硬要这么做，你将会得到一个异常：'Cannot change the ExecutorType when there is an existing transaction'），这个`DynamicExecutor`就是来解决这个问题的。
+- 扩展了Mybatis的`org.apache.ibatis.executor.Executor`，叫`DynamicExecutor`，用于解决在使用mybatis-spring框架时在同一个事务中不能切换ExecutorType的蛋疼问题（如果你硬要这么做，你将会得到一个异常：'Cannot change the ExecutorType when there is an existing transaction'），这个Mybatis本身设计导致(SqlSession中固化了ExecutorType)，派生出`DynamicExecutor`就是来解决这个问题的。
 
 - 仅支持单表CRUD操作，不支持多表JOIN，不支持聚合查询(聚合函数+GROUP BY)
 
   > 写这个框架的当初初衷仅仅是为了能够省去编写XxxMapper.xml，如果做多表JOIN及聚合查询的话，则就失去了使用Mybatis的意义了，还不如直接使用JPA。试想你把一个复杂查询通过DSL的方式写在JAVA代码中，这跟十多年前在JAVA或者JSP代码中写SQL一样，感觉很恶心。
 
-- 仅提供了通用的BaseEntityMapper，没有提供BaseService之类的，BaseEntityMapper的方法如下：
+- 仅提供了通用的BaseEntityMapper，没有提供BaseService之类的，[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)的方法如下：
 
-  ![](BaseEntityMapper.png)
+  ![BaseEntityMapper.java](mapper.png)
+
+- 支持对[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)的扩展，扩展基础Mapper方法是基于约定的，例如存在这样的扩展：
+
+  ```java
+  package com.penglecode.codeforce.mybatistiny.examples.extensions;
+  
+  import com.penglecode.codeforce.common.domain.EntityObject;
+  import com.penglecode.codeforce.mybatistiny.dsl.QueryColumns;
+  import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
+  import org.apache.ibatis.annotations.Param;
+  
+  /**
+   * 增强功能的BaseEntityMapper扩展
+   *
+   * @author pengpeng
+   * @version 1.0
+   */
+  public interface EnhancedBaseMapper<T extends EntityObject> extends BaseEntityMapper<T> {
+  
+      /**
+       * 通过标准MERGE INTO语句来进行合并存储
+       *
+       * @param mergeEntity       - 被更新的实体对象
+       * @param updateColumns     - 如果是update操作，此参数可指定被更新的列
+       * @return
+       */
+      int merge(@Param("mergeEntity") T mergeEntity, @Param("updateColumns") QueryColumns... updateColumns);
+  
+  }
+  ```
+
+  **基于约定的，你必须在同样package下存在**[EnhancedBaseMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/extensions/EnhancedBaseMapper.ftl)
+
+  > Freemarker模板中的预置参数集见[EntityMapperTemplateParameter](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/core/EntityMapperTemplateParameter.java)
+
+  OK，这就扩展好了，就是这么简单！
 
   
 
@@ -723,7 +791,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
                            .with(ProductBaseInfo::getProductName)
                            .with(ProductBaseInfo::getRemark)
                            .with(ProductBaseInfo::getAuditStatus)
-                           .with(ProductBaseInfo::getOnlineStatus)
+                           .withOverride(ProductBaseInfo::getOnlineStatus, 0)
                            .withOverride(ProductBaseInfo::getUpdateTime, nowTime)
                            .build();
        productBaseInfoMapper.updateById(productBase.identity(), updateColumns);
@@ -731,7 +799,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
        
 
-  2. Xxx实体对象的通用Mapper接口（`BaseEntityMapper`）对应的`XxxMapper.xml`是通过freemarker模板([BaseEntityMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.ftl))在应用启动时（准确地说是在**第一次**调用`SqlSession#getMapper(Class type)`方法的时候）自动生成代码的（你可以通过打开日志查看生成的`XxxMapper.xml`是啥样子），然后并加载进入Mybatis的`Configuration`中（实际是变成了许多`MappedStatement`对象了）。
+  2. Xxx实体对象的通用Mapper接口（`BaseEntityMapper`）对应的`XxxMapper.xml`是通过freemarker模板([BaseEntityMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.ftl))在应用启动时（准确地说是在**第一次**调用`Configuration#getMapper(Class type)`方法的时候）自动生成代码的（你可以通过打开日志`\<logger name="com.penglecode.codeforce.mybatistiny" level="DEBUG"/>`查看生成的`XxxMapper.xml`是啥样子），这个自动生成XxxMapper.xml的过程中还需要考虑自定义扩展BaseEntityMapper方法的情况，涉及到XML-Mapper内容的合并。最后通过`org.apache.ibatis.builder.xml.XMLMapperBuilder`加载进入Mybatis的`Configuration`中（实际是变成了许多`MappedStatement`对象了）。
 
      <u>**这一步解决了偷懒省去编写`XxxMapper.xml`的麻烦事。**</u>
 
@@ -965,4 +1033,47 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
   </mapper>
   ```
 
-- 
+
+
+## 注解说明
+
+全部注解都在包`com.penglecode.codeforce.mybatistiny.annotations`下
+
+- @Table
+  - name：必填，用于指定表名
+- @Id
+  - strategy：取值GenerationType.NONE，GenerationType.IDENTITY，GenerationType.SEQUENCE三个值，默认为GenerationType.NONE
+  - generator：仅在strategy=GenerationType.SEQUENCE时用于指定sequence的名称
+  - updatable：主键是否包含在UPDATE列中，默认为false
+- @GenerationType
+  - SEQUENCE：采用数据库序列来生成主键，例如Oracle数据库
+  - IDENTITY：自增主键，大多数数据库都支持整数类型自增主键，例如MySQL、DB2、SQLServer、PG
+  - NONE：由客户端程序自己生成主键并在插入之前设置好
+- @Column
+  - name：映射数据库表的列名，不填则使用默认转换规则(camel <=> Snake)
+  - insertable：当前字段是否包含在INSERT列中? 默认true
+  - updatable：当前字段是否包含在UPDATE列中? 默认true
+  - select：当前字段的select子句，主要用来实现Formatter功能，例如：DATE_FORMAT({name}, '%Y-%m-%d %T')
+  - jdbcType：当前字段的JDBC类型，默认JdbcType.UNDEFINED
+  - typeHandler：当前字段的TypeHandler类型，默认UnknownTypeHandler
+- @Transient：被注解的字段，将不会参与数据库字段映射(非持久化字段)
+
+
+
+## 功能示例
+
+- ##### 非主流数据库方言支持
+
+  
+
+- ##### 自带Jackson2TypeHandler对JSON字段的处理
+
+  
+
+- ##### 覆盖或扩展BaseEntityMapper中的方法
+
+  
+
+- ##### 批量插入、更新、删除的正确使用姿势
+
+  

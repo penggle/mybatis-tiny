@@ -8,7 +8,7 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 表示实体类中不需要持久化的字段
+ * 被注解的字段，将不会参与数据库字段映射(非持久化字段)
  *
  * @author pengpeng
  * @version 1.0

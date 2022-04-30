@@ -36,12 +36,12 @@ public @interface Column {
     boolean updatable() default true;
 
     /**
-     * 当前字段的select字句，例如：DATE_FORMAT({name}, '%Y-%m-%d %T')
+     * 当前字段的select子句，例如：DATE_FORMAT({name}, '%Y-%m-%d %T')
      */
     String select() default "";
 
     /**
-     * 当前字段的JDBC类型
+     * 当前字段的JDBC类型，默认{@link JdbcType#UNDEFINED}
      */
     JdbcType jdbcType() default JdbcType.UNDEFINED;
 
