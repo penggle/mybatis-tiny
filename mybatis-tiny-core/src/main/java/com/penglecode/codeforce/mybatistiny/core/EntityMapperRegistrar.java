@@ -144,7 +144,7 @@ public class EntityMapperRegistrar {
                 if(!CollectionUtils.isEmpty(customBaseEntityMapperMethods)) { //自定义BaseEntityMapper接口中声明了接口方法?(不包括静态方法和default方法)
                     if(isBaseMapperTemplateExists(customBaseEntityMapperClass)) { //如果存在自定义BaseEntityMapper的对应freemarker模板?
                         String customXmlMapperContent = processBaseMapperTemplate(customBaseEntityMapperClass, templateParameter);
-                        entityXmlMapperContent = mergeEntityXmlMapper(entityXmlMapperContent, customXmlMapperContent);
+                        entityXmlMapperContent = mergeEntityXmlMapper(customBaseEntityMapperClass, entityXmlMapperContent, customXmlMapperContent);
                     } else {
                         LOGGER.warn(">>> Found customized {}({}), but no corresponding Freemarker-Template({}) was found!", BaseEntityMapper.class.getSimpleName(), customBaseEntityMapperClass.getName(), getBaseEntityMapperTemplateLocation(customBaseEntityMapperClass));
                     }
@@ -158,11 +158,13 @@ public class EntityMapperRegistrar {
      * 将customXmlMapperContent中的内容合并到entityXmlMapperContent中去
      * 合并原则：只有标签元素的id、name、databaseId一样时才会覆盖，否则添加
      *
+     * @param customBaseEntityMapperClass   - 自定义的BaseEntityMapper类型
      * @param customXmlMapperContent        - 自定义BaseEntityMapper接口对应XML-Mapper内容
      * @param entityXmlMapperContent        - 实体对象的完整XML-Mapper内容
      * @return
      */
-    protected String mergeEntityXmlMapper(String customXmlMapperContent, String entityXmlMapperContent) {
+    protected String mergeEntityXmlMapper(Class<BaseEntityMapper<?>> customBaseEntityMapperClass, String customXmlMapperContent, String entityXmlMapperContent) {
+        LOGGER.info(">>> Found customized {}({}), perform XML-Mapper content merge immediately!", BaseEntityMapper.class.getSimpleName(), customBaseEntityMapperClass.getName());
         Document entityXmlMapperDocument = XmlMapperHelper.readAsDocument(entityXmlMapperContent);
         Document customXmlMapperDocument = XmlMapperHelper.readAsDocument(customXmlMapperContent);
 
