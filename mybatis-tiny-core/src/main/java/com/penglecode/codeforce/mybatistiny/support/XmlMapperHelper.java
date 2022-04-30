@@ -206,8 +206,9 @@ public class XmlMapperHelper {
         if(mapperNodeList != null && mapperNodeList.getLength() > 0) {
             Node mapperNode = mapperNodeList.item(0);
             for(Node childElement : childElements) {
+                Node nodeToAppend = document.importNode(childElement, true);
                 mapperNode.appendChild(document.createTextNode("\n\t\n\t"));
-                mapperNode.appendChild(childElement);
+                mapperNode.appendChild(nodeToAppend);
             }
             mapperNode.appendChild(document.createTextNode("\n\n"));
         }

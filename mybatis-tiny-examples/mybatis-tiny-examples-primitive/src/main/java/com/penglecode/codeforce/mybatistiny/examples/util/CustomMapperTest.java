@@ -1,5 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.examples.util;
 
+import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.common.util.ClassUtils;
 import com.penglecode.codeforce.common.util.ReflectionUtils;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
@@ -58,9 +59,11 @@ public class CustomMapperTest {
             Class<BaseEntityMapper<?>>[] superInterfaces = (Class<BaseEntityMapper<?>>[]) baseMapperClass.getInterfaces();
             for(Class<BaseEntityMapper<?>> superInterface : superInterfaces) {
                 if(!BaseEntityMapper.class.equals(superInterface)) {
-                    //System.out.println(superInterface);
-                    offer.add(superInterface);
-                    doWithSuperTypes(superInterface, offer);
+                    Class<?> superInterfaceGeneric0 = ClassUtils.getClassGenericType(superInterface, 0);
+                    if(superInterfaceGeneric0 != null && EntityObject.class.isAssignableFrom(superInterfaceGeneric0)) {
+                        offer.add(superInterface);
+                        doWithSuperTypes(superInterface, offer);
+                    }
                 }
             }
         }

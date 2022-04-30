@@ -37,6 +37,11 @@ public class XmlMapperElementKey {
     }
 
     @Override
+    public String toString() {
+        return String.format("<%s id=\"%s\" %s/>", name, id, StringUtils.isEmpty(databaseId) ? "" : "databaseId=\"" + databaseId + "\"");
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof XmlMapperElementKey)) return false;

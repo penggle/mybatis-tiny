@@ -56,3 +56,15 @@ CREATE TABLE t_component_meta(
      update_time DATETIME NOT NULL COMMENT '最近更新时间',
      PRIMARY KEY(component_code)
 ) COMMENT='组件元数据表' ENGINE=InnoDB;
+
+CREATE TABLE t_student (
+    id BIGINT(19) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    code VARCHAR(32) NOT NULL COMMENT '学号',
+    name VARCHAR(18) NOT NULL COMMENT '姓名',
+    sex VARCHAR(1) NOT NULL COMMENT '性别',
+    age TINYINT(3) NOT NULL COMMENT '年龄',
+    created DATETIME NOT NULL COMMENT '创建时间',
+    updated DATETIME NOT NULL COMMENT '修改时间',
+    PRIMARY KEY (id) USING BTREE,
+    UNIQUE KEY uk_student_code(code)
+) COMMENT='学生表' ENGINE=InnoDB;

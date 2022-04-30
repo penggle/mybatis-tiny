@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penglecode.codeforce.mybatistiny.examples.dal.mapper.StudentEnhancedMapper">
+    <!-- Customized Code Start -->
+
+    <select id="selectAllStudents" parameterType="java.util.Map" resultType="Student" statementType="PREPARED">
+        SELECT * FROM t_student ORDER BY created DESC
+    </select>
+
+    <!-- Customized Code End -->
+</mapper>

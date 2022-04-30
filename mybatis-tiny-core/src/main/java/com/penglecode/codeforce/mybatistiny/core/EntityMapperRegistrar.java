@@ -1,5 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
+import com.penglecode.codeforce.common.domain.EntityObject;
 import com.penglecode.codeforce.common.util.ClassUtils;
 import com.penglecode.codeforce.common.util.CollectionUtils;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
@@ -112,8 +113,8 @@ public class EntityMapperRegistrar {
      */
     public String registerEntityMapper(Class<BaseEntityMapper<?>> entityMapperClass) {
         Assert.isTrue(entityMapperClass.isInterface(), String.format("Parameter 'entityMapperClass'(%s) must be an interface!", entityMapperClass));
-        //创建实体元数据
-        EntityMeta entityMeta = createEntityMeta(entityMapperClass);
+        //获取实体元数据
+        EntityMeta entityMeta = getEntityMeta(entityMapperClass);
         //为动态生成的实体XxxMapper.xml创建所需的模板参数
         EntityMapperTemplateParameter templateParameter = getXmlMapperTemplateParameterFactory().createTemplateParameter(entityMapperClass, entityMeta);
         String entityXmlMapperLocation = entityMapperClass.getName().replace(".", "/") + ".xml"; //虚拟的位置
@@ -144,7 +145,7 @@ public class EntityMapperRegistrar {
                 if(!CollectionUtils.isEmpty(customBaseEntityMapperMethods)) { //自定义BaseEntityMapper接口中声明了接口方法?(不包括静态方法和default方法)
                     if(isBaseMapperTemplateExists(customBaseEntityMapperClass)) { //如果存在自定义BaseEntityMapper的对应freemarker模板?
                         String customXmlMapperContent = processBaseMapperTemplate(customBaseEntityMapperClass, templateParameter);
-                        entityXmlMapperContent = mergeEntityXmlMapper(customBaseEntityMapperClass, entityXmlMapperContent, customXmlMapperContent);
+                        entityXmlMapperContent = mergeEntityXmlMapper(customBaseEntityMapperClass, customXmlMapperContent, entityXmlMapperContent);
                     } else {
                         LOGGER.warn(">>> Found customized {}({}), but no corresponding Freemarker-Template({}) was found!", BaseEntityMapper.class.getSimpleName(), customBaseEntityMapperClass.getName(), getBaseEntityMapperTemplateLocation(customBaseEntityMapperClass));
                     }
@@ -272,8 +273,11 @@ public class EntityMapperRegistrar {
             Class<BaseEntityMapper<?>>[] superInterfaces = (Class<BaseEntityMapper<?>>[]) baseEntityMapperClass.getInterfaces();
             for(Class<BaseEntityMapper<?>> superInterface : superInterfaces) {
                 if(!BaseEntityMapper.class.equals(superInterface)) {
-                    consumer.accept(superInterface);
-                    collectCustomBaseEntityMappers(superInterface, consumer);
+                    Class<?> superInterfaceGeneric0 = ClassUtils.getClassGenericType(superInterface, 0);
+                    if(superInterfaceGeneric0 != null && EntityObject.class.isAssignableFrom(superInterfaceGeneric0)) { //校验泛型
+                        consumer.accept(superInterface);
+                        collectCustomBaseEntityMappers(superInterface, consumer);
+                    }
                 }
             }
         }
@@ -290,12 +294,12 @@ public class EntityMapperRegistrar {
     }
 
     /**
-     * 创建实体元数据
+     * 获取实体元数据
      *
      * @param entityMapperClass
      * @return
      */
-    protected EntityMeta createEntityMeta(Class<BaseEntityMapper<?>> entityMapperClass) {
+    protected EntityMeta getEntityMeta(Class<BaseEntityMapper<?>> entityMapperClass) {
         Class<?> entityClass = ClassUtils.getSuperGenericType(entityMapperClass, BaseEntityMapper.class, 0);
         Assert.notNull(entityClass, String.format("Can not resolve parameterized entity class from entity mapper: %s", entityMapperClass));
         return EntityMetaFactory.getEntityMeta(entityClass);
