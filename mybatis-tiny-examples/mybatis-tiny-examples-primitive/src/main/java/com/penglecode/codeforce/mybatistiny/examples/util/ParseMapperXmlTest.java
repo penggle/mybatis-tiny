@@ -1,5 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.examples.util;
 
+import com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper;
 import org.springframework.util.CollectionUtils;
 import org.w3c.dom.*;
 
@@ -33,6 +34,7 @@ public class ParseMapperXmlTest {
     public static void test1() throws Exception {
         InputStream in = ParseMapperXmlTest.class.getResourceAsStream("ExampleMapper.xml");
         Document document = readXmlDocument(in);
+        List<Node> selectNodes = new ArrayList<>();
 
         NodeList mapperNodeList = document.getElementsByTagName("mapper");
         if(mapperNodeList != null && mapperNodeList.getLength() > 0) {
@@ -40,26 +42,18 @@ public class ParseMapperXmlTest {
             NodeList tagNodes = mapperNode.getChildNodes();
 
             List<Node> removeNodes = new ArrayList<>();
+
             for(int i = 0, len = tagNodes.getLength(); i < len; i++) {
                 Node tagNode = tagNodes.item(i);
-                NamedNodeMap nodeAttrs = tagNode.getAttributes();
-                if(nodeAttrs != null && nodeAttrs.getLength() > 0) {
-                    Node tagIdNode = nodeAttrs.getNamedItem("id");
-                    System.out.println(tagNode.getNodeName() + " >>> " + tagIdNode.getNodeValue());
-                    if("update".equals(tagNode.getNodeName()) && "updateById".equals(tagIdNode.getNodeValue())) {
-                        removeNodes.add(tagNode);
-                    }
-                    if("delete".equals(tagNode.getNodeName()) && "deleteById".equals(tagIdNode.getNodeValue())) {
-                        removeNodes.add(tagNode);
-                    }
+                removeNodes.add(tagNode);
+                if(tagNode.getNodeName().equals("select")) {
+                    selectNodes.add(tagNode);
                 }
             }
-
-            for(Node removeNode : removeNodes) {
-                removeNode.getParentNode().removeChild(removeNode);
-            }
-
         }
+
+        XmlMapperHelper.clearXmlMapperElements(document);
+        XmlMapperHelper.appendXmlMapperElements(document, selectNodes);
 
         writeXmlDocument(document, new File("d:/ExampleMapper1.xml"));
     }

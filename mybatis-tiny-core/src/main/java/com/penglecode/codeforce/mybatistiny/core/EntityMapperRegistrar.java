@@ -1,13 +1,17 @@
 package com.penglecode.codeforce.mybatistiny.core;
 
 import com.penglecode.codeforce.common.util.ClassUtils;
-import com.penglecode.codeforce.common.util.ReflectionUtils;
+import com.penglecode.codeforce.common.util.CollectionUtils;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.exception.MapperTemplateException;
 import com.penglecode.codeforce.mybatistiny.exception.MapperXmlParseException;
 import com.penglecode.codeforce.mybatistiny.interceptor.DomainObjectQueryInterceptor;
 import com.penglecode.codeforce.mybatistiny.interceptor.PageLimitInterceptor;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
+import com.penglecode.codeforce.mybatistiny.support.XmlMapperElementKey;
+import com.penglecode.codeforce.mybatistiny.support.XmlMapperElementNode;
+import com.penglecode.codeforce.mybatistiny.support.XmlMapperElementType;
+import com.penglecode.codeforce.mybatistiny.support.XmlMapperHelper;
 import freemarker.template.Template;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
@@ -19,20 +23,18 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 实体对象的XML-Mapper注册器
@@ -45,7 +47,7 @@ import java.util.stream.Collectors;
  * @author pengpeng
  * @version 1.0
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked"})
 public class EntityMapperRegistrar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityMapperRegistrar.class);
@@ -93,6 +95,12 @@ public class EntityMapperRegistrar {
         }
     }
 
+    /**
+     * 创建Freemarker模板参数
+     *
+     * @param configuration
+     * @return
+     */
     protected EntityMapperTemplateParameterFactory createTemplateParameterFactory(DecoratedConfiguration configuration) {
         return new EntityMapperTemplateParameterFactory(configuration);
     }
@@ -116,7 +124,7 @@ public class EntityMapperRegistrar {
     }
 
     /**
-     * 最终确定指定实体对象的Mapper.xml内容
+     * 最终确定指定实体对象的XML-Mapper内容
      *
      * @param entityMapperClass         - 实体对象Mapper接口的类型
      * @param entityXmlMapperLocation   - 实体对象Mapper.xml的位置(虚拟的位置)
@@ -124,17 +132,22 @@ public class EntityMapperRegistrar {
      * @return
      */
     protected String determineEntityXmlMapper(Class<BaseEntityMapper<?>> entityMapperClass, String entityXmlMapperLocation, EntityMapperTemplateParameter templateParameter) {
-        String entityXmlMapperContent = processBaseMapperTemplate(castBaseEntityMapperClass(BaseEntityMapper.class), templateParameter);
+        //首先加载BaseEntityMapper.ftl对应的XML-Mapper内容
+        Class<BaseEntityMapper<?>> baseEntityMapperClass = (Class<BaseEntityMapper<?>>) ClassUtils.resolveClassName(BaseEntityMapper.class.getName(), ClassUtils.getDefaultClassLoader());
+        String entityXmlMapperContent = processBaseMapperTemplate(baseEntityMapperClass, templateParameter);
         //处理继承BaseEntityMapper扩展公共方法的情况开始
-        Map<Class<BaseEntityMapper<?>>,Set<Method>> customBaseEntityMappers = getCustomBaseEntityMappers(entityMapperClass);
-        if(!CollectionUtils.isEmpty(customBaseEntityMappers)) { //是否存在这种扩展?
+        List<Class<BaseEntityMapper<?>>> customBaseEntityMapperClasses = getCustomBaseEntityMapperClasses(entityMapperClass);
+        if(!CollectionUtils.isEmpty(customBaseEntityMapperClasses)) { //是否存在这种扩展?
             //如果存在则需要尝试将对应的自定义Mapper方法的xml合并到BaseEntityMapper.xml中去
-            for(Map.Entry<Class<BaseEntityMapper<?>>,Set<Method>> entry : customBaseEntityMappers.entrySet()) {
-                Class<BaseEntityMapper<?>> customBaseEntityMapperClass = entry.getKey();
-                if(isBaseMapperTemplateExists(customBaseEntityMapperClass)) { //如果存在自定义BaseEntityMapper的对应freemarker模板?
-
-                } else {
-                    LOGGER.warn(">>> Found customized {}({}), but no corresponding Freemarker-Template({}) was found!", BaseEntityMapper.class.getSimpleName(), customBaseEntityMapperClass.getName(), getBaseEntityMapperTemplateLocation(customBaseEntityMapperClass));
+            for(Class<BaseEntityMapper<?>> customBaseEntityMapperClass : customBaseEntityMapperClasses) {
+                Set<Method> customBaseEntityMapperMethods = getCustomBaseEntityMapperMethods(customBaseEntityMapperClass);
+                if(!CollectionUtils.isEmpty(customBaseEntityMapperMethods)) { //自定义BaseEntityMapper接口中声明了接口方法?(不包括静态方法和default方法)
+                    if(isBaseMapperTemplateExists(customBaseEntityMapperClass)) { //如果存在自定义BaseEntityMapper的对应freemarker模板?
+                        String customXmlMapperContent = processBaseMapperTemplate(customBaseEntityMapperClass, templateParameter);
+                        entityXmlMapperContent = mergeEntityXmlMapper(entityXmlMapperContent, customXmlMapperContent);
+                    } else {
+                        LOGGER.warn(">>> Found customized {}({}), but no corresponding Freemarker-Template({}) was found!", BaseEntityMapper.class.getSimpleName(), customBaseEntityMapperClass.getName(), getBaseEntityMapperTemplateLocation(customBaseEntityMapperClass));
+                    }
                 }
             }
         }
@@ -142,7 +155,46 @@ public class EntityMapperRegistrar {
     }
 
     /**
-     * 指定的自定义BaseEntityMapper是佛存在对应的Freemarker模板
+     * 将customXmlMapperContent中的内容合并到entityXmlMapperContent中去
+     * 合并原则：只有标签元素的id、name、databaseId一样时才会覆盖，否则添加
+     *
+     * @param customXmlMapperContent        - 自定义BaseEntityMapper接口对应XML-Mapper内容
+     * @param entityXmlMapperContent        - 实体对象的完整XML-Mapper内容
+     * @return
+     */
+    protected String mergeEntityXmlMapper(String customXmlMapperContent, String entityXmlMapperContent) {
+        Document entityXmlMapperDocument = XmlMapperHelper.readAsDocument(entityXmlMapperContent);
+        Document customXmlMapperDocument = XmlMapperHelper.readAsDocument(customXmlMapperContent);
+
+        Map<XmlMapperElementKey,XmlMapperElementNode> entityXmlMapperElements = XmlMapperHelper.getAllXmlMapperElements(entityXmlMapperDocument);
+        Map<XmlMapperElementKey,XmlMapperElementNode> customXmlMapperElements = XmlMapperHelper.getAllXmlMapperElements(customXmlMapperDocument);
+
+        entityXmlMapperElements.putAll(customXmlMapperElements); //执行合并
+        //按XmlMapperElementType中定义的元素顺序排序(保证合并后的XML-Mapper文档的标签顺序)
+        List<Node> finalXmlMapperElements = entityXmlMapperElements.values()
+                .stream()
+                .sorted(Comparator.comparing(this::indexOfXmlMapperElement, Integer::compare))
+                .map(XmlMapperElementNode::getNode)
+                .collect(Collectors.toList());
+
+        XmlMapperHelper.clearXmlMapperElements(entityXmlMapperDocument); //先清空原来的
+        XmlMapperHelper.appendXmlMapperElements(entityXmlMapperDocument, finalXmlMapperElements); //再重新填充已排序的最终版
+        return XmlMapperHelper.writeAsString(entityXmlMapperDocument);
+    }
+
+    /**
+     * 获取排序源
+     *
+     * @param element
+     * @return
+     */
+    private int indexOfXmlMapperElement(XmlMapperElementNode element) {
+        XmlMapperElementType elementType = XmlMapperElementType.typeOf(element.getKey().getName());
+        return elementType == null ? Integer.MAX_VALUE : elementType.ordinal();
+    }
+
+    /**
+     * 指定的自定义BaseEntityMapper是否存在对应的Freemarker模板
      *
      * @param baseMapperClass
      * @return
@@ -184,7 +236,7 @@ public class EntityMapperRegistrar {
     }
 
     /**
-     * 尝试获取指定的具体实体对象Mapper接口类型的自定义BaseEntityMapper(注意不是这个指定的具体实体对象Mapper接口中定义的方法)
+     * 尝试获取某实体对象XxxMapper的自定义BaseEntityMapper，也就是获取XxxMapper的父接口(不包括BaseEntityMapper本身)
      *
      * 例如：
      * public interface CustomBaseMapper<T> extends BaseEntityMapper<T extends EntityObject> {
@@ -194,28 +246,45 @@ public class EntityMapperRegistrar {
      *
      * public interface StudentMapper extends CustomBaseMapper<Student> { }
      *
-     * 调用该方法：getCustomBaseEntityMappers(StudentMapper.class) ==> {key=CustomBaseMapper.class, value=[mergeByUniqueKey, selectByUniqueKey]}
+     * 调用该方法：getCustomBaseEntityMappers(StudentMapper.class) ==> [CustomBaseMapper.class]
      *
      * @param entityMapperClass     - 某个具体实体对象Mapper类型
+     * @return 返回已经排过序的列表(远亲父接口靠前,近亲父接口靠后)
+     */
+    protected List<Class<BaseEntityMapper<?>>> getCustomBaseEntityMapperClasses(Class<BaseEntityMapper<?>> entityMapperClass) {
+        Set<Class<BaseEntityMapper<?>>> customBaseMapperClasses = new LinkedHashSet<>();
+        collectCustomBaseEntityMappers(entityMapperClass, customBaseMapperClasses::add);
+        List<Class<BaseEntityMapper<?>>> resultList = new ArrayList<>(customBaseMapperClasses);
+        Collections.reverse(resultList);
+        return resultList;
+    }
+
+    /**
+     * 递归遍历指定entityMapperClass的祖先
+     *
+     * @param baseEntityMapperClass
+     * @param consumer
+     */
+    private void collectCustomBaseEntityMappers(Class<BaseEntityMapper<?>> baseEntityMapperClass, Consumer<Class<BaseEntityMapper<?>>> consumer) {
+        if(!BaseEntityMapper.class.equals(baseEntityMapperClass)) {
+            Class<BaseEntityMapper<?>>[] superInterfaces = (Class<BaseEntityMapper<?>>[]) baseEntityMapperClass.getInterfaces();
+            for(Class<BaseEntityMapper<?>> superInterface : superInterfaces) {
+                if(!BaseEntityMapper.class.equals(superInterface)) {
+                    consumer.accept(superInterface);
+                    collectCustomBaseEntityMappers(superInterface, consumer);
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取指定自定义BaseEntityMapper的声明方法(不包括父接口中的，不包括静态方法，不包括default方法)
+     *
+     * @param customEntityMapperClass
      * @return
      */
-    protected Map<Class<BaseEntityMapper<?>>,Set<Method>> getCustomBaseEntityMappers(Class<BaseEntityMapper<?>> entityMapperClass) {
-        Set<Method> customBaseMapperMethods = new HashSet<>();
-        Type[] superInterfaces = entityMapperClass.getGenericInterfaces();
-        for (Type superInterface : superInterfaces) {
-            ParameterizedType superType = (ParameterizedType) superInterface;
-            Class<?> superClass = (Class<?>) superType.getRawType();
-            ReflectionUtils.doWithMethods(superClass, customBaseMapperMethods::add, method -> {
-                Class<?> declaringClass = method.getDeclaringClass();
-                /*
-                 * 1、排除default方法；
-                 * 2、排除静态方法；
-                 * 3、不包括BaseEntityMapper中方法
-                 */
-                return !method.isDefault() && !Modifier.isStatic(method.getModifiers()) && !BaseEntityMapper.class.equals(declaringClass) && BaseEntityMapper.class.isAssignableFrom(declaringClass);
-            });
-        }
-        return customBaseMapperMethods.stream().collect(Collectors.groupingBy(method -> (Class<BaseEntityMapper<?>>)method.getDeclaringClass(), Collectors.toSet()));
+    protected Set<Method> getCustomBaseEntityMapperMethods(Class<BaseEntityMapper<?>> customEntityMapperClass) {
+        return Stream.of(customEntityMapperClass.getDeclaredMethods()).filter(method -> !method.isDefault() && !Modifier.isStatic(method.getModifiers())).collect(Collectors.toSet());
     }
 
     /**
@@ -249,10 +318,6 @@ public class EntityMapperRegistrar {
         } finally {
             ErrorContext.instance().reset();
         }
-    }
-
-    protected Class<BaseEntityMapper<?>> castBaseEntityMapperClass(Class<BaseEntityMapper> baseEntityMapperClass) {
-        return (Class<BaseEntityMapper<?>>) ClassUtils.resolveClassName(baseEntityMapperClass.getName(), ClassUtils.getDefaultClassLoader());
     }
 
     protected DecoratedConfiguration getConfiguration() {

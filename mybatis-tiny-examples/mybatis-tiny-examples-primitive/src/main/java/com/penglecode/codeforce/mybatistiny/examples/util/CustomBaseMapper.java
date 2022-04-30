@@ -19,8 +19,6 @@ public interface CustomBaseMapper<T extends EntityObject> extends BaseEntityMapp
     @Override
     int deleteById(@Param("id") Serializable id);
 
-    int merge(T entity);
-
     default void flush() {}
 
     static void sayHello() {
