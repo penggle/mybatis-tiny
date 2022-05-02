@@ -19,11 +19,13 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   List<ProductSaleSpec> productSaleSpecs = ...;
   productBaseInfoMapper.insert(productBase);
   //基于JDBC-Batch特性的批量插入操作。
-  //顺便说一句：对于MySQL不建议在XML中使用<foreach/>来拼接insert into values(..),(..),(...);诚然MySQL底层驱动在开启JDBC-Batch特性时也是将多条单个insert语句改写成insert into values(..),(..),(...)，但是作为客户端程序无法掌握SQL语句字节大小，小了体现不出来JDBC-Batch特性的威力，大了容易报错，所以这个度还是让驱动自己去掌控。
-  //注意对于MySQL需要开启秘籍参数(rewriteBatchedStatements=true)才能正在开启JDBC-Batch特性
   productSaleSpecMapper.batchUpdate(productSaleSpecs, productSaleSpec -> productSaleSpecMapper.insert(productSaleSpec));
+  ```
   
-   - ==>  Preparing: INSERT INTO t_product_base_info( product_id, product_name, product_url, product_tags, product_type, audit_status, online_status, shop_id, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
+  打印日志：
+
+  ```shell
+ - ==>  Preparing: INSERT INTO t_product_base_info( product_id, product_name, product_url, product_tags, product_type, audit_status, online_status, shop_id, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
    - ==> Parameters: null, 24期免息【当天发】Huawei/华为Mate40 5G手机官方旗舰店50pro直降mate40e官网30正品4G鸿蒙正品30全网通(String), https://detail.tmall.com/item.htm?id=633658852628(String), ["手机通讯","手机","手机"](String), 1(Integer), 0(Integer), 1(Integer), 111212422(Long), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
    - <==    Updates: 1
   
@@ -38,6 +40,8 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
    - ==> Parameters: 1(Long), 301(String), 8+128GB(String), 1(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
    - ==> Parameters: 1(Long), 302(String), 8+256GB(String), 2(Integer), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
   ```
+  
+  
 
 - #### 更新操作
 
@@ -175,25 +179,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
   目前Mybatis-Tiny支持主流的数据库：`mysql，mariadb，oracle，db2，sqlserver，postgresql，h2，hsql，sqlite，clickhouse`
 
-  对于非主流数据库，例如"人大金仓数据库(`kingbasees`)"，它属于`Postgresql`系列的，那么采用别名的方式，使用PostgresqlDialect作为其方言，即这样配置：
-
-  ```java
-  //方式1：mybatis-config.xml
-      <databaseIdProvider type="DB_VENDOR">
-          <property name="KingBase" value="postgresql" />
-      </databaseIdProvider>
-  
-  //方式2：Spring环境下
-  @Bean
-  public DatabaseIdProvider databaseIdProvider() {
-      VendorDatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider()
-      Properties properties = new Properties();
-      properties.put("KingBase", "postgresql");
-      return databaseIdProvider;
-  }
-  ```
-
-  
+  对于非主流数据库，可参照<a href="#alternativeDbDialect">非主流数据库方言支持</a>
 
 - Entity实体类是基于注解的（注解类的设计基本与JPA的注解规范一致）；实体类必须实现`EntityObject`接口，例如：
 
@@ -1062,18 +1048,145 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
 ## 功能示例
 
-- ##### 非主流数据库方言支持
+- ##### <a name="alternativeDbDialect">非主流数据库方言支持</a>
+
+  对于非主流数据库，例如"人大金仓数据库(`kingbasees`)"，它属于`Postgresql`系列的，那么采用别名的方式，使用PostgresqlDialect作为其方言，即这样配置：
+
+  方式1：在mybatis-config.xml配置
+
+  ```java
+  <databaseIdProvider type="DB_VENDOR">
+      <property name="KingBase" value="postgresql" />
+  </databaseIdProvider>
+  ```
+
+  方式2：Mybatis与Spring集成环境下，通过注册DatabaseIdProvider bean来配置
+
+  ```java
+  @Bean
+  public DatabaseIdProvider databaseIdProvider() {
+      VendorDatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider()
+      Properties properties = new Properties();
+      properties.put("KingBase", "postgresql");
+      databaseIdProvider.setProperties(properties);
+      return databaseIdProvider;
+  }
+  ```
 
   
 
 - ##### 自带Jackson2TypeHandler对JSON字段的处理
 
+  像Mybatis-Plus框架一样Mybatis-Tiny也可以对某个字段设置TypeHandler，例如：
+
+  ```java
+  @Table("t_component_meta")
+  public class ComponentMeta implements EntityObject {
   
+      private static final long serialVersionUID = 1L;
+  
+      /** 组件代码 */
+      @Id(strategy=GenerationType.NONE)
+      private String componentCode;
+  
+      /** 组件名称 */
+      private String componentName;
+  
+      /** 组件类型*/
+      private String componentType;
+  
+      /** 组件属性 */
+      //字段类型带泛型,需要对Jackson2TypeHandler进行扩展,以期在编译期就能确定泛型的类型
+      @Column(typeHandler=ComponentPropsTypeHandler.class)
+      private Map<String,Object> componentProps;
+  
+      /** 组件API列表 */
+      //字段类型带泛型,需要对Jackson2TypeHandler进行扩展,以期在编译期就要确定泛型的类型
+      @Column(typeHandler=ComponentApisTypeHandler.class)
+      private List<ComponentApiMeta> componentApis;
+  
+      /** 组件API列表 */
+      //字段类型不带泛型,直接用Jackson2TypeHandler就可以了
+      @Column(typeHandler=Jackson2TypeHandler.class)
+      private ComponentDocMeta componentDoc;
+  
+      /** 创建时间 */
+      @Column(updatable=false, select="DATE_FORMAT({name}, '%Y-%m-%d %T')")
+      private String createTime;
+  
+      /** 最近修改时间 */
+      @Column(select="DATE_FORMAT({name}, '%Y-%m-%d %T')")
+      private String updateTime;
+      
+      ...
+  }
+  ```
+
+  具体见示例代码：
+
+  - [ComponentMeta.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/domain/model/ComponentMeta.java)
+  - [TypeHandlerTestBySpring.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-spring/src/test/java/com/penglecode/codeforce/mybatistiny/examples/test/TypeHandlerTestBySpring.java)
 
 - ##### 覆盖或扩展BaseEntityMapper中的方法
 
-  
+  具体见mybatis-tiny-examples-common/com.penglecode.codeforce.mybatistiny.examples.extensions包下的示例代码：
+
+  - [EnhancedBaseMapper.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/extensions/EnhancedBaseMapper.java)
+  - [EnhancedBaseMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/extensions/EnhancedBaseMapper.ftl)
+  - [MysqlBaseMapper.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/extensions/MysqlBaseMapper.java)
+  - [MysqlBaseMapper.ftl](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-common/src/main/java/com/penglecode/codeforce/mybatistiny/examples/extensions/MysqlBaseMapper.ftl)
+  - [CustomMapperTestBySpring.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-spring/src/test/java/com/penglecode/codeforce/mybatistiny/examples/test/CustomMapperTestBySpring.java)
 
 - ##### 批量插入、更新、删除的正确使用姿势
 
+  Mybatis-Tiny提供的实体Mapper基类[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)中就定义了一个批量方法：
+  
+  ```java
+  /**
+       * 根据指定的updateOperation来批量操作(新增、更新、删除)entityList, 例如：
+       *
+       * List<Account> accountList = ...;
+       *
+       * 1、批量新增
+       * accountMapper.batchUpdate(accountList, accountMapper::insert);
+       *
+       * 2、根据ID来批量更新
+       * accountMapper.batchUpdate(accountList, (account) -> {
+       *      Map<String,Object> updateColumns = MapLambdaBuilder.of(account)
+       *              .with(Account::getBalance)
+       *              .with(Account::getStatus)
+       *              .with(Account::getUpdateTime)
+       *              .build();
+       *      accountMapper.updateById(account.identity(), updateColumns);
+       * });
+       *
+       * 3、根据自定义条件来批量更新
+       * accountMapper.batchUpdate(accountList, (account) -> {
+       *      Map<String,Object> updateColumns = MapLambdaBuilder.of(account)
+       *              .with(Account::getBalance)
+       *              .with(Account::getStatus)
+       *              .with(Account::getUpdateTime)
+       *              .build();
+       *      QueryCriteria<Account> queryCriteria = LambdaQueryCriteria.of(account)
+       *              .eq(Account::getIdCard);
+       *      accountMapper.updateByCriteria(queryCriteria, updateColumns);
+       * });
+       *
+       * 4、根据ID来批量删除
+       * (大批量删除走原生JDBC-Batch)
+       * accountMapper.batchUpdate(accountList, account -> accountMapper.deleteById(account.identity()));
+       *
+       * @return
+       */
+      default int batchUpdate(List<T> entityList, Consumer<T> updateOperation) {
+          return EntityMapperHelper.batchUpdateEntityObjects(entityList, updateOperation, this);
+      }
+  ```
+  
+  该`batchUpdate(..)`方法是`default`类型的，因此不会被Mybatis自动代理。其使用JDBC-Batch特性，支持批量INSERT、批量UPDATE、批量DELETE等操作。
+  
+  > 顺便说一句：对于MySQL不建议在XML中使用\<foreach/>来拼接insert into values(..),(..),(...);诚然MySQL底层驱动在开启JDBC-Batch特性时也是将多条单个insert语句改写成insert into multi values的形式，但是作为客户端程序通过\<foreach/>来人为insert into multi values语句，无法掌握SQL语句字节大小，小了体现不出来JDBC-Batch特性的威力，大了容易报错，所以这个度还是让驱动自己去掌控。
+  >
+  > 注意对于MySQL需要开启秘籍参数(rewriteBatchedStatements=true)才能正在开启JDBC-Batch特性
+  
   
