@@ -174,7 +174,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
   > 重复造轮子的初衷也是被Mybatis-Plus只能使用单一主键给恶心到了
 
-- 到目前为止，没有任何可配置的配置项。Mybatis-Tiny的数据库方言配置与Mybatis本身的方言配置一致，即通过databaseId来实现方言。也就是说Mybatis-Tiny的方言数据库类型取自Configuration.databaseId字段，如果应用程序未设置(通过DatabaseIdProvider来设置)，则Mybatis-Tiny会自动设置。
+- 到目前为止，Mybatis-Tiny没有任何可配置的配置项。Mybatis-Tiny的数据库方言配置与Mybatis本身的方言配置一致，即通过databaseId来实现方言。也就是说Mybatis-Tiny的方言数据库类型取自Configuration.databaseId字段，如果应用程序未设置(通过DatabaseIdProvider来设置)，则Mybatis-Tiny会自动设置。
 
   目前Mybatis-Tiny支持主流的数据库：`mysql，mariadb，oracle，db2，sqlserver，postgresql，h2，hsql，sqlite，clickhouse`
 
@@ -1024,24 +1024,34 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 
 全部注解都在包`com.penglecode.codeforce.mybatistiny.annotations`下
 
-- @Table
+- ##### @Table
+  
   - name：必填，用于指定表名
-- @Id
+  
+- ##### @Id
+  
   - strategy：取值GenerationType.NONE，GenerationType.IDENTITY，GenerationType.SEQUENCE三个值，默认为GenerationType.NONE
   - generator：仅在strategy=GenerationType.SEQUENCE时用于指定sequence的名称
   - updatable：主键是否包含在UPDATE列中，默认为false
-- @GenerationType
+  
+- ##### @GenerationType
+  
   - SEQUENCE：采用数据库序列来生成主键，例如Oracle数据库
   - IDENTITY：自增主键，大多数数据库都支持整数类型自增主键，例如MySQL、DB2、SQLServer、PG
   - NONE：由客户端程序自己生成主键并在插入之前设置好
-- @Column
+  
+- ##### @Column
+  
   - name：映射数据库表的列名，不填则使用默认转换规则(camel <=> Snake)
   - insertable：当前字段是否包含在INSERT列中? 默认true
   - updatable：当前字段是否包含在UPDATE列中? 默认true
   - select：当前字段的select子句，主要用来实现Formatter功能，例如：DATE_FORMAT({name}, '%Y-%m-%d %T')
   - jdbcType：当前字段的JDBC类型，默认JdbcType.UNDEFINED
   - typeHandler：当前字段的TypeHandler类型，默认UnknownTypeHandler
-- @Transient：被注解的字段，将不会参与数据库字段映射(非持久化字段)
+  
+- ##### @Transient
+
+  被注解的字段，将不会参与数据库字段映射(非持久化字段)
 
 
 
@@ -1189,3 +1199,94 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
   > 注意对于MySQL需要开启秘籍参数(rewriteBatchedStatements=true)才能正在开启JDBC-Batch特性
   
   
+
+## 性能测试
+
+机器配置：Intel(R) Core(TM) i7-11800H @ 2.30GHz  RAM32GB Windows10 64位操作系统
+
+基于JMH的性能基准测试（测试用例：[PerformanceTestBySpring.java](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-examples/mybatis-tiny-examples-spring/src/test/java/com/penglecode/codeforce/mybatistiny/examples/test/PerformanceTestBySpring.java)），多次测试大致结果如下：
+
+```shell
+"C:\Program Files\Java\jdk1.8.0_311\bin\java.exe" "-javaagent:D:\Program Files\ideaIU-2021.2.3\lib\idea_rt.jar=13413:D:\Program Files\ideaIU-2021.2.3\bin" -Dfile.encoding=UTF-8 -classpath "C:\Program Files\Java\jdk1.8.0_311\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\deploy.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\access-bridge-64.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\cldrdata.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\dnsns.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\jaccess.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\jfxrt.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\localedata.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\nashorn.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\sunec.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\sunjce_provider.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\sunmscapi.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\sunpkcs11.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\ext\zipfs.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\javaws.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\jfxswt.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\management-agent.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\plugin.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_311\jre\lib\rt.jar;D:\GIT\mybatis-tiny\mybatis-tiny-examples\mybatis-tiny-examples-spring\target\test-classes;D:\GIT\mybatis-tiny\mybatis-tiny-examples\mybatis-tiny-examples-spring\target\classes;D:\GIT\mybatis-tiny\mybatis-tiny-examples\mybatis-tiny-examples-common\target\classes;C:\Users\Pengle\.m2\repository\com\google\guava\guava\30.0-jre\guava-30.0-jre.jar;C:\Users\Pengle\.m2\repository\com\google\guava\failureaccess\1.0.1\failureaccess-1.0.1.jar;C:\Users\Pengle\.m2\repository\com\google\guava\listenablefuture\9999.0-empty-to-avoid-conflict-with-guava\listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar;C:\Users\Pengle\.m2\repository\com\google\code\findbugs\jsr305\3.0.2\jsr305-3.0.2.jar;C:\Users\Pengle\.m2\repository\org\checkerframework\checker-qual\3.5.0\checker-qual-3.5.0.jar;C:\Users\Pengle\.m2\repository\com\google\errorprone\error_prone_annotations\2.3.4\error_prone_annotations-2.3.4.jar;C:\Users\Pengle\.m2\repository\com\google\j2objc\j2objc-annotations\1.3\j2objc-annotations-1.3.jar;C:\Users\Pengle\.m2\repository\io\github\penggle\codeforce-common-domain\2.4\codeforce-common-domain-2.4.jar;C:\Users\Pengle\.m2\repository\io\github\penggle\codeforce-common-base\2.4\codeforce-common-base-2.4.jar;C:\Users\Pengle\.m2\repository\org\apache\commons\commons-lang3\3.12.0\commons-lang3-3.12.0.jar;C:\Users\Pengle\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.11.4\jackson-databind-2.11.4.jar;C:\Users\Pengle\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.11.4\jackson-annotations-2.11.4.jar;C:\Users\Pengle\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.11.4\jackson-core-2.11.4.jar;C:\Users\Pengle\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jdk8\2.11.4\jackson-datatype-jdk8-2.11.4.jar;C:\Users\Pengle\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jsr310\2.11.4\jackson-datatype-jsr310-2.11.4.jar;D:\GIT\mybatis-tiny\mybatis-tiny-base\target\classes;C:\Users\Pengle\.m2\repository\org\openjdk\jmh\jmh-generator-annprocess\1.35\jmh-generator-annprocess-1.35.jar;C:\Users\Pengle\.m2\repository\org\openjdk\jmh\jmh-core\1.35\jmh-core-1.35.jar;C:\Users\Pengle\.m2\repository\net\sf\jopt-simple\jopt-simple\5.0.4\jopt-simple-5.0.4.jar;C:\Users\Pengle\.m2\repository\org\apache\commons\commons-math3\3.2\commons-math3-3.2.jar;C:\Users\Pengle\.m2\repository\org\slf4j\slf4j-api\1.7.30\slf4j-api-1.7.30.jar;C:\Users\Pengle\.m2\repository\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\Pengle\.m2\repository\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\Pengle\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.13.3\log4j-to-slf4j-2.13.3.jar;C:\Users\Pengle\.m2\repository\org\apache\logging\log4j\log4j-api\2.13.3\log4j-api-2.13.3.jar;C:\Users\Pengle\.m2\repository\org\slf4j\jul-to-slf4j\1.7.30\jul-to-slf4j-1.7.30.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-context\5.3.6\spring-context-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-aop\5.3.6\spring-aop-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-beans\5.3.6\spring-beans-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-core\5.3.6\spring-core-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-jcl\5.3.6\spring-jcl-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-expression\5.3.6\spring-expression-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-tx\5.3.6\spring-tx-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-jdbc\5.3.6\spring-jdbc-5.3.6.jar;D:\GIT\mybatis-tiny\mybatis-tiny-core\target\classes;C:\Users\Pengle\.m2\repository\org\freemarker\freemarker\2.3.31\freemarker-2.3.31.jar;C:\Users\Pengle\.m2\repository\org\mybatis\mybatis\3.5.6\mybatis-3.5.6.jar;C:\Users\Pengle\.m2\repository\org\mybatis\mybatis-spring\2.0.6\mybatis-spring-2.0.6.jar;C:\Users\Pengle\.m2\repository\org\yaml\snakeyaml\1.27\snakeyaml-1.27.jar;C:\Users\Pengle\.m2\repository\com\zaxxer\HikariCP\3.4.5\HikariCP-3.4.5.jar;C:\Users\Pengle\.m2\repository\mysql\mysql-connector-java\8.0.25\mysql-connector-java-8.0.25.jar;C:\Users\Pengle\.m2\repository\com\google\protobuf\protobuf-java\3.11.4\protobuf-java-3.11.4.jar;C:\Users\Pengle\.m2\repository\org\springframework\spring-test\5.3.6\spring-test-5.3.6.jar;C:\Users\Pengle\.m2\repository\org\junit\jupiter\junit-jupiter\5.7.1\junit-jupiter-5.7.1.jar;C:\Users\Pengle\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.7.1\junit-jupiter-api-5.7.1.jar;C:\Users\Pengle\.m2\repository\org\apiguardian\apiguardian-api\1.1.0\apiguardian-api-1.1.0.jar;C:\Users\Pengle\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\Pengle\.m2\repository\org\junit\platform\junit-platform-commons\1.7.1\junit-platform-commons-1.7.1.jar;C:\Users\Pengle\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.7.1\junit-jupiter-params-5.7.1.jar;C:\Users\Pengle\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.7.1\junit-jupiter-engine-5.7.1.jar;C:\Users\Pengle\.m2\repository\org\junit\platform\junit-platform-engine\1.7.1\junit-platform-engine-1.7.1.jar" com.penglecode.codeforce.mybatistiny.examples.test.PerformanceTestBySpring
+# JMH version: 1.35
+# VM version: JDK 1.8.0_311, Java HotSpot(TM) 64-Bit Server VM, 25.311-b11
+# VM invoker: C:\Program Files\Java\jdk1.8.0_311\jre\bin\java.exe
+# VM options: -javaagent:D:\Program Files\ideaIU-2021.2.3\lib\idea_rt.jar=13413:D:\Program Files\ideaIU-2021.2.3\bin -Dfile.encoding=UTF-8
+# Blackhole mode: full + dont-inline hint (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 16 threads, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.penglecode.codeforce.mybatistiny.examples.test.PerformanceTestBySpring.selectProductsByConditionTest
+
+# Run progress: 0.00% complete, ETA 00:00:20
+# Fork: 1 of 1
+# Warmup Iteration   1: 2761.165 ±(99.9%) 410.214 us/op
+# Warmup Iteration   2: 1554.748 ±(99.9%) 128.554 us/op
+# Warmup Iteration   3: 1015.426 ±(99.9%) 100.778 us/op
+# Warmup Iteration   4: 1009.242 ±(99.9%) 97.470 us/op
+# Warmup Iteration   5: 995.272 ±(99.9%) 101.068 us/op
+Iteration   1: 999.417 ±(99.9%) 102.929 us/op
+Iteration   2: 1010.243 ±(99.9%) 103.908 us/op
+Iteration   3: 1010.699 ±(99.9%) 108.932 us/op
+Iteration   4: 1004.568 ±(99.9%) 105.673 us/op
+Iteration   5: 1017.957 ±(99.9%) 105.427 us/op
+
+
+Result "com.penglecode.codeforce.mybatistiny.examples.test.PerformanceTestBySpring.selectProductsByConditionTest":
+  1008.577 ±(99.9%) 26.902 us/op [Average]
+  (min, avg, max) = (999.417, 1008.577, 1017.957), stdev = 6.986
+  CI (99.9%): [981.675, 1035.478] (assumes normal distribution)
+
+
+# JMH version: 1.35
+# VM version: JDK 1.8.0_311, Java HotSpot(TM) 64-Bit Server VM, 25.311-b11
+# VM invoker: C:\Program Files\Java\jdk1.8.0_311\jre\bin\java.exe
+# VM options: -javaagent:D:\Program Files\ideaIU-2021.2.3\lib\idea_rt.jar=13413:D:\Program Files\ideaIU-2021.2.3\bin -Dfile.encoding=UTF-8
+# Blackhole mode: full + dont-inline hint (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 16 threads, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: com.penglecode.codeforce.mybatistiny.examples.test.PerformanceTestBySpring.selectProductsByCriteriaTest
+
+# Run progress: 50.00% complete, ETA 00:00:13
+# Fork: 1 of 1
+# Warmup Iteration   1: 4105.507 ±(99.9%) 781.593 us/op
+# Warmup Iteration   2: 2255.710 ±(99.9%) 248.330 us/op
+# Warmup Iteration   3: 1228.765 ±(99.9%) 36.033 us/op
+# Warmup Iteration   4: 1229.815 ±(99.9%) 32.962 us/op
+# Warmup Iteration   5: 1218.356 ±(99.9%) 32.701 us/op
+Iteration   1: 1211.893 ±(99.9%) 35.373 us/op
+Iteration   2: 1216.603 ±(99.9%) 34.442 us/op
+Iteration   3: 1231.756 ±(99.9%) 34.803 us/op
+Iteration   4: 1226.538 ±(99.9%) 33.961 us/op
+Iteration   5: 1233.974 ±(99.9%) 35.074 us/op
+
+
+Result "com.penglecode.codeforce.mybatistiny.examples.test.PerformanceTestBySpring.selectProductsByCriteriaTest":
+  1224.153 ±(99.9%) 36.898 us/op [Average]
+  (min, avg, max) = (1211.893, 1224.153, 1233.974), stdev = 9.582
+  CI (99.9%): [1187.255, 1261.050] (assumes normal distribution)
+
+
+# Run complete. Total time: 00:00:27
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+Benchmark                                              Mode  Cnt     Score    Error  Units
+PerformanceTestBySpring.selectProductsByConditionTest  avgt    5  1008.577 ± 26.902  us/op
+PerformanceTestBySpring.selectProductsByCriteriaTest   avgt    5  1224.153 ± 36.898  us/op
+
+Process finished with exit code 0
+
+```
+
+
+
