@@ -19,13 +19,12 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   List<ProductSaleSpec> productSaleSpecs = ...;
   productBaseInfoMapper.insert(productBase);
   //基于JDBC-Batch特性的批量插入操作。
-  productSaleSpecMapper.batchUpdate(productSaleSpecs, productSaleSpec -> productSaleSpecMapper.insert(productSaleSpec));
-  ```
+  productSaleSpecMapper.batchUpdate(productSaleSpecs, 
+                                    productSaleSpec -> productSaleSpecMapper.insert(productSaleSpec));
   
-  打印日志：
-
-  ```shell
- - ==>  Preparing: INSERT INTO t_product_base_info( product_id, product_name, product_url, product_tags, product_type, audit_status, online_status, shop_id, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
+  //打印日志：
+  
+   - ==>  Preparing: INSERT INTO t_product_base_info( product_id, product_name, product_url, product_tags, product_type, audit_status, online_status, shop_id, remark, create_time, update_time ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
    - ==> Parameters: null, 24期免息【当天发】Huawei/华为Mate40 5G手机官方旗舰店50pro直降mate40e官网30正品4G鸿蒙正品30全网通(String), https://detail.tmall.com/item.htm?id=633658852628(String), ["手机通讯","手机","手机"](String), 1(Integer), 0(Integer), 1(Integer), 111212422(Long), null, 2022-04-27 00:43:42(String), 2022-04-27 00:43:42(String)
    - <==    Updates: 1
   
@@ -42,7 +41,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
   ```
   
   
-
+  
 - #### 更新操作
 
   ```java
