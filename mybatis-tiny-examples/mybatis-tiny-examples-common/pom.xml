@@ -12,6 +12,10 @@
     <name>mybatis-tiny-examples-common</name>
     <description>mybatis-tiny示例公共部分</description>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <!-- guava -->
         <dependency>

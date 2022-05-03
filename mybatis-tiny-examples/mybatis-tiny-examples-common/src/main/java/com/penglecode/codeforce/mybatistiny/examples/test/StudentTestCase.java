@@ -12,7 +12,6 @@ import com.penglecode.codeforce.mybatistiny.examples.dal.mapper.StudentMysqlMapp
 import com.penglecode.codeforce.mybatistiny.examples.domain.model.Student;
 import com.penglecode.codeforce.mybatistiny.examples.extensions.EnhancedBaseMapper;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;
-import sun.plugin2.message.GetAppletMessage;
 
 import java.time.LocalDateTime;
 import java.util.List;

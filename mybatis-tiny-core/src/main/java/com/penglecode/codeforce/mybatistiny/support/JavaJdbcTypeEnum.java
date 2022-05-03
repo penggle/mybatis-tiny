@@ -46,6 +46,14 @@ public enum JavaJdbcTypeEnum {
     YEARMONTH(JdbcType.VARCHAR, YearMonth.class),
     JAPANESE_DATE(JdbcType.DATE, JapaneseDate.class),
 
+    //特殊处理枚举字段的情况
+    ENUM(JdbcType.VARCHAR, Enum.class) {
+        @Override
+        public boolean isTypeMapped(Class<?> javaType) {
+            return Enum.class.isAssignableFrom(javaType);
+        }
+    },
+
     OBJECT(JdbcType.OTHER, Object.class);
 
     private final JdbcType jdbcType;
@@ -65,12 +73,25 @@ public enum JavaJdbcTypeEnum {
         return javaTypes;
     }
 
+    /**
+     * 默认的映射实现
+     *
+     * @param javaType
+     * @return
+     */
+    public boolean isTypeMapped(Class<?> javaType) {
+        for(Class<?> type : javaTypes) {
+            if(type.equals(javaType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static JdbcType getJdbcType(Class<?> javaType) {
         for(JavaJdbcTypeEnum em : values()) {
-            for(Class<?> type : em.getJavaTypes()) {
-                if(type.equals(javaType)) {
-                    return em.getJdbcType();
-                }
+            if(em.isTypeMapped(javaType)) {
+                return em.getJdbcType();
             }
         }
         return JdbcType.UNDEFINED;

@@ -12,6 +12,10 @@
     <name>mybatis-tiny-examples-springboot</name>
     <description>mybatis-tiny示例3：仅使用spring框架的示例</description>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <!-- 公共测试用例 -->
         <dependency>
