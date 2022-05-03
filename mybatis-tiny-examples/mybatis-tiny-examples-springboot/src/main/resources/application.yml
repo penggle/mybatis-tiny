@@ -17,7 +17,6 @@ server:
 spring:
     application:
         name: mybatis-tiny-examples-springboot
-        code: ${spring.application.name}
     #配置文件激活配置
     profiles:
         active: dev

@@ -375,7 +375,7 @@ Mybatis-Tiny是什么？Mybatis-Tiny是一个基于Mybatis框架的一层极简�
 
 - 仅支持单表CRUD操作，不支持多表JOIN，不支持聚合查询(聚合函数+GROUP BY)
 
-  > 写这个框架的当初初衷仅仅是为了能够省去编写XxxMapper.xml，如果做多表JOIN及聚合查询的话，则就失去了使用Mybatis的意义了，还不如直接使用JPA。试想你把一个复杂查询通过DSL的方式写在JAVA代码中，这跟十多年前在JAVA或者JSP代码中写SQL一样，感觉很恶心。
+  > 写这个框架的当初初衷仅仅是为了能够省去编写千篇一律的单表CRUD(XxxMapper.xml)，如果做多表JOIN及聚合查询的话，则就失去了使用Mybatis的意义了，还不如直接使用JPA。试想你把一个复杂查询通过DSL的方式写在JAVA代码中，这跟十多年前在JAVA或者JSP代码中写SQL一样，感觉很恶心。
 
 - 仅提供了通用的BaseEntityMapper，没有提供BaseService之类的，[BaseEntityMapper](https://github.com/penggle/mybatis-tiny/blob/main/mybatis-tiny-core/src/main/java/com/penglecode/codeforce/mybatistiny/mapper/BaseEntityMapper.java)的方法如下：
 
@@ -1057,7 +1057,11 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
 - ##### @Id
   
   - strategy：取值GenerationType.NONE，GenerationType.IDENTITY，GenerationType.SEQUENCE三个值，默认为GenerationType.NONE
+  
+    > **注意：在联合主键情况下，strategy必须设为GenerationType.NONE**
+  
   - generator：仅在strategy=GenerationType.SEQUENCE时用于指定sequence的名称
+  
   - updatable：主键是否包含在UPDATE列中，默认为false
   
 - ##### @GenerationType
