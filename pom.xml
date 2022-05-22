@@ -101,6 +101,13 @@
                 <version>${codeforce.version}</version>
             </dependency>
 
+            <!-- codeforce-common-model -->
+            <dependency>
+                <groupId>io.github.penggle</groupId>
+                <artifactId>codeforce-common-model</artifactId>
+                <version>${codeforce.version}</version>
+            </dependency>
+
             <!-- mybatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>

@@ -25,6 +25,12 @@
             <artifactId>codeforce-common-domain</artifactId>
         </dependency>
 
+        <!-- codeforce-common-model -->
+        <dependency>
+            <groupId>io.github.penggle</groupId>
+            <artifactId>codeforce-common-model</artifactId>
+        </dependency>
+
         <!-- mybatis -->
         <dependency>
             <groupId>org.mybatis</groupId>

@@ -1,7 +1,7 @@
 package com.penglecode.codeforce.mybatistiny.support;
 
 import com.penglecode.codeforce.common.domain.EntityObject;
-import com.penglecode.codeforce.common.domain.Page;
+import com.penglecode.codeforce.common.model.Page;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.executor.JdbcBatchOperation;
 import com.penglecode.codeforce.mybatistiny.mapper.BaseEntityMapper;

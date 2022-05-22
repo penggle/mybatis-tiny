@@ -1,8 +1,8 @@
 package com.penglecode.codeforce.mybatistiny.examples.test;
 
 import com.penglecode.codeforce.common.domain.ID;
-import com.penglecode.codeforce.common.domain.OrderBy;
-import com.penglecode.codeforce.common.domain.Page;
+import com.penglecode.codeforce.common.model.OrderBy;
+import com.penglecode.codeforce.common.model.Page;
 import com.penglecode.codeforce.common.support.MapLambdaBuilder;
 import com.penglecode.codeforce.common.util.DateTimeUtils;
 import com.penglecode.codeforce.common.util.JsonUtils;

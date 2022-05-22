@@ -1,6 +1,6 @@
 package com.penglecode.codeforce.mybatistiny.examples.test;
 
-import com.penglecode.codeforce.common.domain.OrderBy;
+import com.penglecode.codeforce.common.model.OrderBy;
 import com.penglecode.codeforce.mybatistiny.dsl.LambdaQueryCriteria;
 import com.penglecode.codeforce.mybatistiny.dsl.QueryCriteria;
 import com.penglecode.codeforce.mybatistiny.examples.dal.mapper.ProductBaseInfoMapper;

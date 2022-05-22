@@ -1,7 +1,7 @@
 package com.penglecode.codeforce.mybatistiny.dsl;
 
 import com.penglecode.codeforce.common.domain.EntityObject;
-import com.penglecode.codeforce.common.domain.OrderBy;
+import com.penglecode.codeforce.common.model.OrderBy;
 import com.penglecode.codeforce.common.support.BeanIntrospector;
 import com.penglecode.codeforce.common.support.SerializableFunction;
 import org.springframework.util.Assert;

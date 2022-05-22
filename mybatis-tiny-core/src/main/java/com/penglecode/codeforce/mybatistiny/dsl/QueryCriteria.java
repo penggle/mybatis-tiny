@@ -1,7 +1,7 @@
 package com.penglecode.codeforce.mybatistiny.dsl;
 
 import com.penglecode.codeforce.common.domain.EntityObject;
-import com.penglecode.codeforce.common.domain.OrderBy;
+import com.penglecode.codeforce.common.model.OrderBy;
 import com.penglecode.codeforce.common.util.ClassUtils;
 import com.penglecode.codeforce.mybatistiny.annotations.Table;
 import com.penglecode.codeforce.mybatistiny.core.EntityMeta;
