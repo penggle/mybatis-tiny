@@ -281,8 +281,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <build>
+                <!-- 发布所需插件 -->
                 <plugins>
-                    <!-- 发布所需插件 -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
