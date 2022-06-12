@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.penggle</groupId>
         <artifactId>mybatis-tiny-parent</artifactId>
-        <version>3.5</version>
+        <version>3.5.1</version>
     </parent>
     <artifactId>mybatis-tiny-base</artifactId>
     <name>mybatis-tiny-base</name>
