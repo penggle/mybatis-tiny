@@ -261,7 +261,7 @@
             </activation>
             <build>
                 <!-- 发布所需插件 -->
-                <plugins>
+                <!--<plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -309,7 +309,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
+                </plugins>-->
             </build>
         </profile>
     </profiles>
