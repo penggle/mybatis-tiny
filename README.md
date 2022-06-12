@@ -430,7 +430,7 @@ Mybatis-Tiny是一层很薄的东西，没有任何特性化的自定义配置�
     <groupId>io.github.penggle</groupId>
     <artifactId>mybatis-tiny-core</artifactId>
     <!-- 版本说明：3.5指的是基于Mybatis 3.5.x版本的意思 -->
-    <version>3.5</version>
+    <version>3.5.1</version>
 </dependency>
 ```
 
